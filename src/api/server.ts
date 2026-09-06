@@ -1,3 +1,8 @@
+import dns from "node:dns";
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {}
+
 import express from "express";
 import cors from "cors";
 import path from "node:path";
