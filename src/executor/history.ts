@@ -21,7 +21,10 @@ export const localOrderLedger: any[] = [
     updateTime: Date.now() - 3600000,
     isWorking: true,
     workingTime: Date.now() - 3600000,
-    origQuoteOrderQuantity: "150.00000000"
+    origQuoteOrderQuantity: "150.00000000",
+    isSimulated: true,
+    executionMode: "GEO_RESTRICTED_LOCAL_SIMULATOR",
+    routing: "LOCAL_SIMULATOR"
   }
 ];
 
@@ -92,6 +95,11 @@ export async function getBinanceTestnetOrders(symbol: string = "BTCUSDT"): Promi
   });
 
   if (Array.isArray(remoteOrders) && remoteOrders.length > 0) {
+    remoteOrders.forEach((o) => {
+      o.isSimulated = false;
+      o.executionMode = "REAL_BINANCE_TESTNET";
+      o.routing = "REAL_BINANCE_TESTNET";
+    });
     return remoteOrders;
   }
 

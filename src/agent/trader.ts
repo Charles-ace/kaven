@@ -25,6 +25,9 @@ export interface MarketAnalysis {
   spreadBps: number;
   volatilityBand: 'LOW' | 'NORMAL' | 'ELEVATED';
   thesis: string;
+  dataSource: 'LIVE_BINANCE_FEED' | 'SYNTHETIC_FALLBACK_FEED';
+  isFallback: boolean;
+  endpointUsed?: string;
   timestamp: string;
 }
 
@@ -85,7 +88,14 @@ function getFallbackDepth(symbol: string) {
   };
 }
 
-async function fetchResilientJson<T>(endpoint: string, fallback: T): Promise<T> {
+export interface ResilientFetchResult<T> {
+  data: T;
+  isFallback: boolean;
+  source: 'LIVE_BINANCE_FEED' | 'SYNTHETIC_FALLBACK_FEED';
+  endpoint: string;
+}
+
+async function fetchResilientJson<T>(endpoint: string, fallback: T): Promise<ResilientFetchResult<T>> {
   const baseUrls = [
     'https://data-api.binance.vision',
     'https://api.binance.com',
@@ -105,25 +115,43 @@ async function fetchResilientJson<T>(endpoint: string, fallback: T): Promise<T> 
       });
       clearTimeout(timeout);
       if (res.ok) {
-        return (await res.json()) as T;
+        const data = (await res.json()) as T;
+        return {
+          data,
+          isFallback: false,
+          source: 'LIVE_BINANCE_FEED',
+          endpoint: base
+        };
       }
     } catch {
       // Seamlessly fall through to next endpoint or verified fallback
     }
   }
 
-  // Gracefully return verified high-fidelity fallback if network is unreachable or aborted
-  return fallback;
+  // Explicitly return labeled synthetic fallback if network is unreachable or aborted
+  return {
+    data: fallback,
+    isFallback: true,
+    source: 'SYNTHETIC_FALLBACK_FEED',
+    endpoint: 'INTERNAL_FALLBACK_CACHE'
+  };
 }
 
 export async function runMarketScan(symbol: string = 'BTCUSDT'): Promise<AgentTradeProposal> {
   const normSym = symbol.toUpperCase().trim();
   
-  // 1 & 2. Concurrently fetch 24hr Ticker and L2 Depth (with zero-error fallback)
-  const [ticker, depth] = await Promise.all([
+  // 1 & 2. Concurrently fetch 24hr Ticker and L2 Depth (with explicit origin tracking)
+  const [tickerRes, depthRes] = await Promise.all([
     fetchResilientJson<any>(`/api/v3/ticker/24hr?symbol=${normSym}`, getFallbackTicker(normSym)),
     fetchResilientJson<any>(`/api/v3/depth?symbol=${normSym}&limit=20`, getFallbackDepth(normSym))
   ]);
+
+  const isFallback = tickerRes.isFallback || depthRes.isFallback;
+  const dataSource = isFallback ? 'SYNTHETIC_FALLBACK_FEED' : 'LIVE_BINANCE_FEED';
+  const endpointUsed = isFallback ? 'INTERNAL_FALLBACK_CACHE' : tickerRes.endpoint;
+
+  const ticker = tickerRes.data;
+  const depth = depthRes.data;
 
   const lastPrice = parseFloat(ticker.lastPrice) || 79965.0;
   const priceChangePct = parseFloat(ticker.priceChangePercent) || 0.0;
@@ -182,6 +210,9 @@ export async function runMarketScan(symbol: string = 'BTCUSDT'): Promise<AgentTr
     spreadBps: parseFloat(spreadBps.toFixed(2)),
     volatilityBand,
     thesis,
+    dataSource,
+    isFallback,
+    endpointUsed,
     timestamp: new Date().toISOString()
   };
 

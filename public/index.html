@@ -2132,12 +2132,13 @@
               <th>Executed Qty</th>
               <th>Total Quote ($)</th>
               <th>Status</th>
+              <th>Routing / Origin</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody id="historyTableBody">
             <tr>
-              <td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">
+              <td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">
                 Connecting to Binance Spot Testnet...
               </td>
             </tr>
@@ -2291,13 +2292,15 @@
         const v = data.verdict;
         const e = data.execution;
 
-        // Step 1: Perception
+        // Step 1: Perception (Explicit Live vs Fallback indicator)
+        const isFallbackFeed = a.isFallback || a.dataSource === 'SYNTHETIC_FALLBACK_FEED';
         s1.innerHTML = `
           <strong>${escapeHtml(a.symbol)}</strong> &bull; Spot Price: <span style="color:#fff; font-weight:600;">$${Number(a.price).toLocaleString()}</span>
           &bull; 24h: <span style="color:${a.priceChange24hPct >= 0 ? 'var(--pass)' : 'var(--veto)'}; font-weight:600;">${a.priceChange24hPct >= 0 ? '+' : ''}${a.priceChange24hPct.toFixed(2)}%</span>
           &bull; Bid Depth: <span style="color:var(--accent-mint); font-weight:600;">${a.bidPressurePct}%</span>
           &bull; Spread: <span>${a.spreadBps} bps</span>
           &bull; Volatility: <span class="badge-status badge-PASS">${a.volatilityBand}</span>
+          &bull; Feed: ${isFallbackFeed ? '<span class="badge-status badge-WARN" style="font-size:10px; padding:2px 6px;">⚠️ SYNTHETIC FALLBACK (OFFLINE)</span>' : '<span class="badge-status badge-PASS" style="font-size:10px; padding:2px 6px;">🟢 LIVE BINANCE L2 FEED</span>'}
         `;
 
         // Step 2: Thesis & Intent
@@ -2316,15 +2319,16 @@
           &bull; Action Token: <span style="color:var(--text-muted); font-size:10.5px;">${v.signedAction?.actionId || 'None'}</span>
         `;
 
-        // Step 4: Execution
+        // Step 4: Execution (Explicit Real vs Simulated 451 indicator)
         if (e && e.status === 'FILLED') {
           const bo = e.binanceResponse;
+          const isSim = e.isSimulated || e.executionMode === 'GEO_RESTRICTED_LOCAL_SIMULATOR' || bo?.isSimulated || (bo?._geoNotice);
           s4.innerHTML = `
-            <span class="badge-status badge-PASS">FILLED ON BINANCE TESTNET</span>
+            ${isSim ? '<span class="badge-status badge-WARN" style="font-size:10.5px; padding:3px 7px;">⚠️ SIMULATED TESTNET FILL (GEO-RESTRICTED 451)</span>' : '<span class="badge-status badge-PASS" style="font-size:10.5px; padding:3px 7px;">🟢 FILLED ON REAL BINANCE TESTNET</span>'}
             &bull; Order ID: <strong style="color:#fff;">#${bo.orderId}</strong>
             &bull; Executed Qty: <strong>${bo.executedQty} ${p.symbol.replace('USDT','')}</strong>
             &bull; Cumulative Quote: <span style="color:var(--accent-mint);">$${Number(bo.cummulativeQuoteQty).toFixed(2)}</span>
-            &bull; Type: <span>${e.executionType}</span>
+            &bull; Routing: <span style="color:${isSim ? '#f59e0b' : 'var(--accent-mint)'}; font-weight:600;">${isSim ? 'Local Testnet Ledger (Binance 451 Regional Block Bypass)' : 'Direct Binance Testnet API'}</span>
           `;
           currentHistorySymbol = p.symbol;
           loadOrderHistory();
@@ -2734,6 +2738,11 @@
             const quoteVal = Number(o.cummulativeQuoteQty || 0).toFixed(2);
             const timeStr = o.time ? new Date(o.time).toLocaleTimeString() : '-';
 
+            const isSimOrder = o.isSimulated || o.executionMode === 'GEO_RESTRICTED_LOCAL_SIMULATOR' || (o.clientOrderId && o.clientOrderId.startsWith('kaven_')) || o._geoNotice;
+            const routingBadge = isSimOrder
+              ? '<span class="badge-status badge-WARN" style="font-size:9.5px; padding:2px 6px;">⚠️ SIMULATED (451 GEO)</span>'
+              : '<span class="badge-status badge-PASS" style="font-size:9.5px; padding:2px 6px;">🟢 LIVE TESTNET</span>';
+
             tr.innerHTML = `
               <td><span style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:#fff;">${o.orderId}</span></td>
               <td><span class="coin-pill active" style="font-size:10px; padding:2px 7px;">${escapeHtml(o.symbol)}</span></td>
@@ -2742,6 +2751,7 @@
               <td><span style="font-family:var(--font-mono); font-size:11px; font-weight:600;">${o.executedQty}</span></td>
               <td><span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint);">$${quoteVal}</span></td>
               <td><span class="badge-status ${statusClass}">${escapeHtml(o.status)}</span></td>
+              <td>${routingBadge}</td>
               <td><span style="font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted);">${timeStr}</span></td>
             `;
             tbody.appendChild(tr);
@@ -2751,7 +2761,7 @@
         if (tbody) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="8" style="text-align:center; padding:20px; color:var(--veto);">
+              <td colspan="9" style="text-align:center; padding:20px; color:var(--veto);">
                 Failed to load Binance order history: ${escapeHtml(err.message)}
               </td>
             </tr>

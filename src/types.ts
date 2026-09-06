@@ -103,6 +103,8 @@ export interface ExecutorResult {
   status: "FILLED" | "PENDING_HUMAN_APPROVAL" | "REJECTED" | "DISCARDED";
   actionId: string;
   executionType?: "AUTO_EXECUTE" | "HUMAN_CONFIRMED";
+  executionMode?: "REAL_BINANCE_TESTNET" | "GEO_RESTRICTED_LOCAL_SIMULATOR";
+  isSimulated?: boolean;
   binanceResponse?: any;
   error?: string;
   reason?: string;

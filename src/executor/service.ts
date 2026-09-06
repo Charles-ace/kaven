@@ -105,19 +105,25 @@ export class KavenExecutorService {
           time: Date.now(),
           workingTime: Date.now(),
           selfTradePreventionMode: "NONE",
-          _geoNotice: "Binance Testnet 451 geo-restricted. Simulated testnet fill recorded to verified ledger."
+          isSimulated: true,
+          executionMode: "GEO_RESTRICTED_LOCAL_SIMULATOR",
+          _geoNotice: "Binance Spot Testnet returned HTTP 451 (Restricted Location). Simulated testnet fill recorded to verifiable local ledger."
         };
         recordLocalOrder(fallbackOrder);
         return {
           status: "FILLED",
           actionId: payload.actionId,
           executionType: "AUTO_EXECUTE",
+          executionMode: "GEO_RESTRICTED_LOCAL_SIMULATOR",
+          isSimulated: true,
           binanceResponse: fallbackOrder,
-          reason: "Direct fill executed via Testnet execution engine (Geo-resilience active)."
+          reason: "Simulated testnet fill: Binance Spot Testnet returned 451 (Restricted Location). Fallback ledger recorded order."
         };
       }
 
       if (netRes.ok && netRes.body) {
+        netRes.body.isSimulated = false;
+        netRes.body.executionMode = "REAL_BINANCE_TESTNET";
         recordLocalOrder(netRes.body);
       }
 
@@ -125,11 +131,13 @@ export class KavenExecutorService {
         status: netRes.ok ? "FILLED" : "REJECTED",
         actionId: payload.actionId,
         executionType: "AUTO_EXECUTE",
+        executionMode: netRes.ok ? "REAL_BINANCE_TESTNET" : undefined,
+        isSimulated: false,
         binanceResponse: netRes.body,
         error: netRes.ok
           ? undefined
           : `Binance Spot Testnet returned status ${netRes.statusCode}: ${JSON.stringify(netRes.body)}`,
-        reason: netRes.ok ? "Direct fill executed without human intervention." : "Binance API order placement rejected."
+        reason: netRes.ok ? "Direct fill executed on real Binance Spot Testnet." : "Binance API order placement rejected."
       };
     }
 
@@ -228,19 +236,25 @@ export class KavenExecutorService {
         time: Date.now(),
         workingTime: Date.now(),
         selfTradePreventionMode: "NONE",
-        _geoNotice: "Binance Testnet 451 geo-restricted. Simulated testnet fill recorded to verified ledger."
+        isSimulated: true,
+        executionMode: "GEO_RESTRICTED_LOCAL_SIMULATOR",
+        _geoNotice: "Binance Spot Testnet returned HTTP 451 (Restricted Location). Simulated testnet fill recorded to verifiable local ledger."
       };
       recordLocalOrder(fallbackOrder);
       return {
         status: "FILLED",
         actionId,
         executionType: "HUMAN_CONFIRMED",
+        executionMode: "GEO_RESTRICTED_LOCAL_SIMULATOR",
+        isSimulated: true,
         binanceResponse: fallbackOrder,
-        reason: "Order placed following explicit human authorization (Geo-resilience active)."
+        reason: "Simulated testnet fill: Human confirmed, but Binance Spot Testnet returned 451 (Restricted Location). Fallback ledger recorded order."
       };
     }
 
     if (netRes.ok && netRes.body) {
+      netRes.body.isSimulated = false;
+      netRes.body.executionMode = "REAL_BINANCE_TESTNET";
       recordLocalOrder(netRes.body);
     }
 
@@ -248,11 +262,13 @@ export class KavenExecutorService {
       status: netRes.ok ? "FILLED" : "REJECTED",
       actionId,
       executionType: "HUMAN_CONFIRMED",
+      executionMode: netRes.ok ? "REAL_BINANCE_TESTNET" : undefined,
+      isSimulated: false,
       binanceResponse: netRes.body,
       error: netRes.ok
         ? undefined
         : `Binance Spot Testnet returned status ${netRes.statusCode}: ${JSON.stringify(netRes.body)}`,
-      reason: netRes.ok ? "Order placed following explicit human authorization." : "Binance API order placement rejected."
+      reason: netRes.ok ? "Order placed on real Binance Spot Testnet following explicit human authorization." : "Binance API order placement rejected."
     };
   }
 
