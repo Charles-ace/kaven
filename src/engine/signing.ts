@@ -15,7 +15,9 @@ export function canonicalJson(obj: any): string {
   if (Array.isArray(obj)) {
     return "[" + obj.map(canonicalJson).join(",") + "]";
   }
-  const keys = Object.keys(obj).sort();
+  const keys = Object.keys(obj)
+    .filter((k) => obj[k] !== undefined)
+    .sort();
   const pairs = keys.map((k) => JSON.stringify(k) + ":" + canonicalJson(obj[k]));
   return "{" + pairs.join(",") + "}";
 }
