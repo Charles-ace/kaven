@@ -144,7 +144,7 @@ export class BinanceMarketClient {
       return inflight;
     }
 
-    const baseUrl = process.env.BINANCE_API_BASE_URL || "https://api.binance.com";
+    const baseUrl = process.env.BINANCE_API_BASE_URL || "https://data-api.binance.vision";
     const url = `${baseUrl}/api/v3/depth?symbol=${upper}&limit=${limit}`;
 
     const fetchPromise = (async () => {

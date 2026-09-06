@@ -33,26 +33,49 @@ export interface AgentTradeProposal {
   analysis: MarketAnalysis;
 }
 
+async function fetchResilientJson<T>(endpoint: string): Promise<T> {
+  const baseUrls = [
+    'https://data-api.binance.vision',
+    'https://api.binance.com',
+    'https://api.binance.us'
+  ];
+
+  let lastError: Error | null = null;
+  for (const base of baseUrls) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(`${base}${endpoint}`, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Kaven/1.0',
+          'Accept': 'application/json'
+        }
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        return (await res.json()) as T;
+      }
+      lastError = new Error(`HTTP ${res.status} ${res.statusText}`);
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+  throw new Error(`Failed to fetch Binance market data: ${lastError?.message || 'Network error'}`);
+}
+
 export async function runMarketScan(symbol: string = 'BTCUSDT'): Promise<AgentTradeProposal> {
   const normSym = symbol.toUpperCase().trim();
   
-  // 1. Fetch 24hr Ticker
-  const tickerRes = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${normSym}`);
-  if (!tickerRes.ok) {
-    throw new Error(`Failed to fetch 24h ticker for ${normSym}: ${tickerRes.statusText}`);
-  }
-  const ticker = (await tickerRes.json()) as any;
+  // 1. Fetch 24hr Ticker via resilient proxy
+  const ticker = await fetchResilientJson<any>(`/api/v3/ticker/24hr?symbol=${normSym}`);
   const lastPrice = parseFloat(ticker.lastPrice);
   const priceChangePct = parseFloat(ticker.priceChangePercent);
   const highPrice = parseFloat(ticker.highPrice);
   const lowPrice = parseFloat(ticker.lowPrice);
 
-  // 2. Fetch L2 Depth (top 20 levels)
-  const depthRes = await fetch(`https://api.binance.com/api/v3/depth?symbol=${normSym}&limit=20`);
-  if (!depthRes.ok) {
-    throw new Error(`Failed to fetch L2 depth for ${normSym}: ${depthRes.statusText}`);
-  }
-  const depth = (await depthRes.json()) as any;
+  // 2. Fetch L2 Depth (top 20 levels) via resilient proxy
+  const depth = await fetchResilientJson<any>(`/api/v3/depth?symbol=${normSym}&limit=20`);
 
   const bids: [number, number][] = (depth.bids || []).map((b: [string, string]) => [parseFloat(b[0]), parseFloat(b[1])]);
   const asks: [number, number][] = (depth.asks || []).map((a: [string, string]) => [parseFloat(a[0]), parseFloat(a[1])]);
