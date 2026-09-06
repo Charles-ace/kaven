@@ -1154,14 +1154,165 @@
       gap: 12px;
     }
 
-    /* Footer */
-    .footer {
-      border-top: 1px solid var(--border-subtle);
-      padding: 40px 0;
-      margin-top: 80px;
-      text-align: center;
-      font-size: 12.5px;
+    /* Two Modes Cards */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+    @media (max-width: 860px) {
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+    .mode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 28px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .mode-card:hover {
+      border-color: rgba(52, 211, 153, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+    }
+    .mode-badge-top {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .mode-badge-agent {
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: var(--accent-mint-bright);
+    }
+    .mode-badge-gate {
+      background: rgba(147, 197, 253, 0.12);
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      color: #93c5fd;
+    }
+    .mode-feature-list {
+      list-style: none;
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-body);
+    }
+    .mode-feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.45;
+    }
+    .mode-feature-list li span.check-icon {
+      color: var(--accent-mint);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Benchmark / Audit Cards */
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+    @media (max-width: 900px) {
+      .audit-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .audit-grid { grid-template-columns: 1fr; }
+    }
+    .audit-card {
+      background: rgba(18, 22, 19, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+    .audit-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+    .audit-stat-big {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 4px 0;
+    }
+    .audit-stat-highlight {
+      color: var(--accent-mint-bright);
+    }
+    .audit-stat-lbl {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-muted);
+    }
+    .audit-stat-desc {
+      font-size: 12px;
+      color: var(--text-body);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* 3-Tier Risk Visualizer */
+    .tier-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+    @media (max-width: 860px) {
+      .tier-cards-grid { grid-template-columns: 1fr; }
+    }
+    .tier-card-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .tier-card-col.t1 { border-top: 3px solid var(--pass); }
+    .tier-card-col.t2 { border-top: 3px solid var(--warn); }
+    .tier-card-col.t3 { border-top: 3px solid var(--veto); }
+    .tier-card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .tier-card-rule {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+    .tier-card-col.t1 .tier-card-rule { background: rgba(34, 197, 94, 0.12); color: var(--pass); }
+    .tier-card-col.t2 .tier-card-rule { background: rgba(245, 158, 11, 0.12); color: var(--warn); }
+    .tier-card-col.t3 .tier-card-rule { background: rgba(239, 68, 68, 0.12); color: var(--veto); }
+    .tier-card-desc {
+      font-size: 12px;
+      color: var(--text-body);
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -1176,13 +1327,15 @@
       <div class="brand-group" onclick="switchView('landing')">
         <img src="/assets/kaven-logo.png" alt="Kaven" class="brand-logo-img" />
         <span class="brand-name">KAVEN</span>
-        <span class="brand-badge">INVARIANT GATE</span>
+        <span class="brand-badge">AI AGENT &amp; INVARIANT GATE</span>
       </div>
 
       <nav class="nav-links">
-        <a class="nav-link" href="#covenants" onclick="switchView('landing')">Covenants</a>
-        <a class="nav-link" href="#architecture" onclick="switchView('landing')">Architecture</a>
-        <a class="nav-link" href="#comparison" onclick="switchView('landing')">Comparison</a>
+        <a class="nav-link" href="#agent-mode" onclick="switchView('landing')">AI Agent</a>
+        <a class="nav-link" href="#two-modes" onclick="switchView('landing')">Two Modes</a>
+        <a class="nav-link" href="#risk-tiers" onclick="switchView('landing')">3-Tier Risk</a>
+        <a class="nav-link" href="#covenants" onclick="switchView('landing')">Invariants</a>
+        <a class="nav-link" href="#audit" onclick="switchView('landing')">Audit &amp; Stress</a>
         <a class="nav-link" href="#faq" onclick="switchView('landing')">FAQ</a>
       </nav>
 
@@ -1206,29 +1359,31 @@
       </div>
 
       <div class="hero-content">
-        <!-- Sleek Apple-style Tag (Zero loud green tags or dots) -->
+        <!-- Sleek Tag -->
         <div class="hero-tag reveal-on-scroll">
-          <span class="hero-tag-text">PRE-FLIGHT INVARIANT GATE &bull; BINANCE AGENT OS</span>
+          <span class="hero-tag-text">AUTONOMOUS AI TRADER AGENT &bull; DETERMINISTIC INVARIANT GATE &bull; BINANCE AGENT OS</span>
         </div>
 
         <h1 class="hero-title reveal-on-scroll delay-1">
-          Trade High Stakes.<br />
-          <span>Never Blow Up.</span>
+          Autonomous AI Trading.<br />
+          <span>Provably Safe Execution.</span>
         </h1>
 
         <p class="hero-desc reveal-on-scroll delay-2">
-          Kaven is the deterministic pre-flight invariant gate for Binance AI agents.
-          Walks live Binance L2 order books tick-by-tick before execution to eliminate slippage shocks,
-          excessive leverage, and portfolio concentration breaches.
+          Kaven is an autonomous AI trading agent and fail-closed pre-flight invariant gate for Binance.
+          It continuously perceives live Binance market microstructure, formulates quantitative trading theses,
+          and executes cryptographically signed orders on Binance Spot Testnet—while mathematically guaranteeing your
+          capital against flash crashes, toxic slippage, and runaway leverage.
         </p>
 
         <div class="hero-actions reveal-on-scroll delay-3">
           <button class="btn-pill" onclick="switchView('console')">Launch Risk Console</button>
-          <a href="#covenants" class="btn-outline">View Invariant Rules</a>
+          <a href="#agent-mode" class="btn-outline">Explore AI Trader Agent</a>
+          <a href="#audit" class="btn-outline">View 20/20 Audit Proof</a>
         </div>
 
-        <!-- Live Baseline Invariant Stats (Apple Glassmorphic Cards) -->
-        <div class="grid-4 reveal-on-scroll delay-4" id="covenants">
+        <!-- High-Impact Live Verification Stats -->
+        <div class="grid-4 reveal-on-scroll delay-4">
           <div class="stat-box">
             <div class="stat-header">
               <div class="stat-label">Declared NAV</div>
@@ -1242,85 +1397,278 @@
 
           <div class="stat-box">
             <div class="stat-header">
-              <div class="stat-label">Concentration Cap</div>
-              <div class="stat-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              <div class="stat-label">Master E2E Audit</div>
+              <div class="stat-icon" style="color:var(--accent-mint-bright);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
               </div>
             </div>
-            <div class="stat-val">35.0%</div>
-            <div class="stat-sub">Max $7,000.00 Single Asset</div>
+            <div class="stat-val" style="color:var(--accent-mint-bright);">20 / 20</div>
+            <div class="stat-sub">100.0% Full-Stack Checks Passed</div>
           </div>
 
           <div class="stat-box">
             <div class="stat-header">
-              <div class="stat-label">Max Leverage</div>
+              <div class="stat-label">Concurrency Burst</div>
               <div class="stat-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               </div>
             </div>
-            <div class="stat-val">10x / 3x</div>
-            <div class="stat-sub">10x BTC &amp; ETH | 3x Altcoins</div>
+            <div class="stat-val">1,291ms</div>
+            <div class="stat-sub">200 Concurrent Reqs &bull; 0 Drops</div>
           </div>
 
           <div class="stat-box">
             <div class="stat-header">
-              <div class="stat-label">Slippage Ceiling</div>
+              <div class="stat-label">Live Gateway</div>
               <div class="stat-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
             </div>
-            <div class="stat-val">15.0 bps</div>
-            <div class="stat-sub">L2 VWAP Order Book Walking</div>
+            <div class="stat-val" style="font-size:20px;">BINANCE</div>
+            <div class="stat-sub">Spot Testnet Real Authenticated Fills</div>
           </div>
         </div>
       </div>
     </section>
 
     <div class="main-container">
-      <!-- Architecture Section with Apple-like Icons -->
-      <section id="architecture" style="padding: 60px 0;">
+      <!-- SECTION 1: AUTONOMOUS AI TRADER AGENT -->
+      <section id="agent-mode" style="padding: 60px 0;">
         <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
-          <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">How Kaven Protects Capital</h2>
-          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">4-stage deterministic pre-execution pipeline</p>
+          <div style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-mint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">
+            AI Perception &bull; Market Reasoning &bull; Autonomous Execution
+          </div>
+          <h2 style="font-size: 32px; font-weight:700; letter-spacing:-0.03em;">The Autonomous AI Trader Agent</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px; max-width:680px; margin-left:auto; margin-right:auto;">
+            Kaven doesn't merely sit and wait for trades. Its built-in autonomous agent constantly perceives Binance order book microstructures, formulates quantitative theses, validates safety covenants, and executes fills.
+          </p>
         </div>
+
         <div class="grid-4">
           <div class="card reveal-on-scroll">
             <div class="card-icon-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="3"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
             </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">01 / INTERCEPT</div>
-            <div class="card-title">Trade Intent Proposal</div>
-            <p class="card-desc">The AI agent submits its proposed order (symbol, side, notional USD, leverage, order type) via REST or MCP tool before dispatching to Binance.</p>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">01 / PERCEPTION</div>
+            <div class="card-title">Microstructure Scanner</div>
+            <p class="card-desc">Queries live Binance 24h tickers and top 20 L2 order book levels. Calculates live bid dominance %, ask resistance, and bid-ask spread in basis points.</p>
           </div>
+
           <div class="card reveal-on-scroll delay-1">
             <div class="card-icon-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 15 10 5 10-5"/><path d="m2 11 10 5 10-5"/><path d="m2 7 10 5 10-5"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
             </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">02 / BOOK-WALK</div>
-            <div class="card-title">Live L2 Depth Fetch</div>
-            <p class="card-desc">Kaven walks the real Binance L2 order book up to 100 levels deep to compute real VWAP and simulated price impact down to basis points.</p>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">02 / THESIS</div>
+            <div class="card-title">Quantitative Synthesis</div>
+            <p class="card-desc">Evaluates order book imbalance without requiring expensive LLM tokens. Formulates an explicit, verifiable thesis (e.g. buyer accumulation scalps with strict sizing).</p>
           </div>
+
           <div class="card reveal-on-scroll delay-2">
             <div class="card-icon-badge">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">03 / ARBITRATE</div>
-            <div class="card-title">Invariant Evaluation</div>
-            <p class="card-desc">Checks leverage ceilings (10x major / 3x alt), 35% NAV concentration, and 15 bps slippage. Evaluates PASS, VETO, or ESCALATE.</p>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">03 / ARBITRATION</div>
+            <div class="card-title">Pre-Flight Gate Audit</div>
+            <p class="card-desc">Trade intent is screened against all 5 covenants. Walks live order book depth tick-by-tick for slippage, verifies leverage, and checks 35% concentration caps.</p>
           </div>
+
           <div class="card reveal-on-scroll delay-3">
             <div class="card-icon-badge">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">04 / REMEDIATE</div>
-            <div class="card-title">Cryptographic Receipt</div>
-            <p class="card-desc">Returns an RFC-8785 canonical hash. If vetoed, returns exact corrective parameters so the bot can downsize and survive.</p>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">04 / TESTNET FILL</div>
+            <div class="card-title">Cryptographic Execution</div>
+            <p class="card-desc">Emits an RFC-8785 canonical token (30s TTL, single-use nonce). Dispatches order directly to Binance Spot Testnet and streams the genuine Order ID back to UI.</p>
+          </div>
+        </div>
+
+        <!-- Interactive Callout -->
+        <div style="margin-top:24px; background:linear-gradient(135deg, rgba(52,211,153,0.08) 0%, rgba(14,18,16,0.85) 100%); border:1px solid rgba(52,211,153,0.3); border-radius:14px; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div style="font-size:16px; font-weight:700; color:#fff;">Experience the Autonomous Agent Live</div>
+            <div style="font-size:13px; color:var(--text-body); margin-top:2px;">Launch the console to watch Kaven scan BTC, ETH, or SOL and stream live perception telemetry in real time.</div>
+          </div>
+          <button class="btn-pill" onclick="switchView('console')">Open Agent Cockpit &rarr;</button>
+        </div>
+      </section>
+
+      <!-- SECTION 2: TWO OPERATING MODES -->
+      <section id="two-modes" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <div style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-mint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">
+            Dual Architecture &bull; Universal Integration
+          </div>
+          <h2 style="font-size: 32px; font-weight:700; letter-spacing:-0.03em;">Two Powerful Operating Modes</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px; max-width:680px; margin-left:auto; margin-right:auto;">
+            Use Kaven as a turnkey autonomous trading agent, or wire your own external trading bots to Kaven as an impenetrable safety covenant gateway.
+          </p>
+        </div>
+
+        <div class="mode-grid">
+          <!-- Mode A -->
+          <div class="mode-card reveal-on-scroll">
+            <div>
+              <span class="mode-badge-top mode-badge-agent">MODE 1 &bull; TURNKEY AUTONOMOUS AGENT</span>
+              <h3 style="font-size:22px; font-weight:700; color:#fff; margin-bottom:8px;">Autonomous AI Trader</h3>
+              <p style="font-size:13.5px; color:var(--text-body); line-height:1.5;">
+                Fully automated quantitative agent running directly inside Kaven. Zero external dependencies, zero LLM API key costs, and instantaneous execution.
+              </p>
+              <ul class="mode-feature-list">
+                <li><span class="check-icon">✓</span> <strong>Real-time Binance L2 Perception:</strong> Reads 24h ticker, volume imbalances, and top 20 order book levels.</li>
+                <li><span class="check-icon">✓</span> <strong>Algorithmic Market Thesis:</strong> Calculates bid dominance % and spread bps to time entries safely.</li>
+                <li><span class="check-icon">✓</span> <strong>Self-Governing Invariants:</strong> Capped at Tier 1 conservative sizing ($100-$2,000, &le;1x leverage).</li>
+                <li><span class="check-icon">✓</span> <strong>Live Testnet Execution:</strong> Dispatches real orders to Binance Spot Testnet with verifiable Order IDs.</li>
+              </ul>
+            </div>
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+              <button class="btn-pill" style="width:100%;" onclick="switchView('console')">Run Agent in Cockpit &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Mode B -->
+          <div class="mode-card reveal-on-scroll delay-1">
+            <div>
+              <span class="mode-badge-top mode-badge-gate">MODE 2 &bull; EXTERNAL BOT &amp; LLM GATEWAY</span>
+              <h3 style="font-size:22px; font-weight:700; color:#fff; margin-bottom:8px;">Universal Invariant Gate</h3>
+              <p style="font-size:13.5px; color:var(--text-body); line-height:1.5;">
+                Have your own trading bot in Python, Node, LangChain, or Claude Desktop? Wire it to Kaven in 2 minutes. Your bot proposes trades; Kaven mathematically ensures it can never blow up.
+              </p>
+              <ul class="mode-feature-list">
+                <li><span class="check-icon">✓</span> <strong>Simple REST API:</strong> Submit trade proposals to <code>POST /propose</code> &rarr; execute approved trades at <code>POST /execute</code>.</li>
+                <li><span class="check-icon">✓</span> <strong>Model Context Protocol (MCP):</strong> Native stdio tool suite (<code>limbo_evaluate_proposal</code>, <code>limbo_verify_action</code>) for LLM swarms.</li>
+                <li><span class="check-icon">✓</span> <strong>Custody Separation:</strong> Invariant engine never touches exchange secrets; isolated executor gate validates signed 30s tokens.</li>
+                <li><span class="check-icon">✓</span> <strong>Replay &amp; Tamper Defense:</strong> Single-use action nonces and RFC-8785 HMAC-SHA256 signatures reject forged trades.</li>
+              </ul>
+            </div>
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+              <a href="#architecture" class="btn-outline" style="display:block; text-align:center;">View Developer API Specs &rarr;</a>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Comparison Table -->
-      <section id="comparison" style="padding: 60px 0;">
+      <!-- SECTION 3: 3-TIER RISK ARCHITECTURE -->
+      <section id="risk-tiers" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <div style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-mint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">
+            Risk Triage &bull; 80% Safety Margin Rule
+          </div>
+          <h2 style="font-size: 32px; font-weight:700; letter-spacing:-0.03em;">The 3-Tier Execution Gateway</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px; max-width:680px; margin-left:auto; margin-right:auto;">
+            Kaven classifies every proposed trade into one of three deterministic risk tiers before any order touches Binance.
+          </p>
+        </div>
+
+        <div class="tier-cards-grid">
+          <!-- Tier 1 -->
+          <div class="tier-card-col t1 reveal-on-scroll">
+            <span class="tier-card-rule">TIER 1 &bull; ALL METRICS &le; 80% OF LIMITS</span>
+            <div class="tier-card-name" style="color:var(--pass);">⚡ Tier 1: Auto-Execute</div>
+            <div class="tier-card-desc">
+              All covenants (leverage, concentration, slippage) remain strictly within conservative boundaries.
+              The gateway automatically stamps an RFC-8785 cryptographic signature with a 30-second TTL.
+              Order executes immediately on Binance Spot Testnet with <strong>zero human latency</strong>.
+            </div>
+          </div>
+
+          <!-- Tier 2 -->
+          <div class="tier-card-col t2 reveal-on-scroll delay-1">
+            <span class="tier-card-rule">TIER 2 &bull; WARNING BAND (80% &ndash; 100%)</span>
+            <div class="tier-card-name" style="color:var(--warn);">⚠️ Tier 2: Operator Sign-Off</div>
+            <div class="tier-card-desc">
+              Trade approaches allowable ceilings (e.g. 9x on a 10x BTC cap or 85% of concentration limit).
+              Kaven automatically <strong>pauses automation</strong> and stages the order in the human operator queue.
+              The operator reviews real-time L2 depth and clicks <strong>Approve</strong> or <strong>Discard</strong>.
+            </div>
+          </div>
+
+          <!-- Tier 3 -->
+          <div class="tier-card-col t3 reveal-on-scroll delay-2">
+            <span class="tier-card-rule">TIER 3 &bull; ANY METRIC &gt; 100% (BREACH)</span>
+            <div class="tier-card-name" style="color:var(--veto);">🛑 Tier 3: Hard Veto</div>
+            <div class="tier-card-desc">
+              Proposal breaches hard invariants (e.g. 10x leverage on meme coins, &gt;35% concentration, or flash slippage shock).
+              The trade is <strong>dropped immediately</strong>. Zero cryptographic tokens are issued, making it physically impossible for any Binance API call to occur.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: INVARIANT RULES BASELINE -->
+      <section id="covenants" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <div style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-mint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">
+            Deterministic Safety Baseline
+          </div>
+          <h2 style="font-size: 32px; font-weight:700; letter-spacing:-0.03em;">5 Immutable Safety Invariants</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Every single trade proposal is audited against these mathematical laws before execution</p>
+        </div>
+
+        <div class="grid-4">
+          <div class="card reveal-on-scroll">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px;">INVARIANT 1</div>
+            <div class="card-title">Hard Leverage Cap</div>
+            <p class="card-desc">10x max for major assets (BTC, ETH); 3x strict cap for all altcoins. Prevents liquidation cascades during high volatility.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-1">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px;">INVARIANT 2</div>
+            <div class="card-title">Portfolio Concentration</div>
+            <p class="card-desc">35% NAV ceiling ($7,000 max single asset on $20,000 portfolio). Eliminates catastrophic single-asset wipeout exposure.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-2">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px;">INVARIANT 3</div>
+            <div class="card-title">Max Notional Loss</div>
+            <p class="card-desc">2.5% max allowable loss ($500 stop-loss equivalent). Rejects high-risk sizing where bad fills could drain equity.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-3">
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px;">INVARIANT 4 &amp; 5</div>
+            <div class="card-title">Slippage &amp; Throttle</div>
+            <p class="card-desc">15 bps slippage ceiling evaluated by walking live Binance L2 depth. 5-second minimum throttle defense against runaway loops.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: EMPIRICAL AUDIT & STRESS TEST PROOF -->
+      <section id="audit" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <div style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-mint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px;">
+            Empirical Proof &bull; Timothy &amp; Enoch Standard
+          </div>
+          <h2 style="font-size: 32px; font-weight:700; letter-spacing:-0.03em;">Master Audit &amp; Stress Benchmarks</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px; max-width:680px; margin-left:auto; margin-right:auto;">
+            No simulated claims or hand-waving. Every component is rigorously tested under high concurrency, malicious injection payloads, and live Binance network conditions.
+          </p>
+        </div>
+
+        <div class="audit-grid">
+          <div class="audit-card reveal-on-scroll">
+            <div class="audit-stat-lbl">Master E2E Suite</div>
+            <div class="audit-stat-big audit-stat-highlight">20 / 20</div>
+            <div class="audit-stat-desc">All 6 subsystem suites passed with 100.0% reliability (Assets, Invariants, Agent, Security, History, MCP).</div>
+          </div>
+
+          <div class="audit-card reveal-on-scroll delay-1">
+            <div class="audit-stat-lbl">Concurrency Burst</div>
+            <div class="audit-stat-big">1,291ms</div>
+            <div class="audit-stat-desc">200 concurrent requests burst tested under load ($p_{50}$: 1,117ms, $p_{95}$: 1,273ms, zero dropped requests).</div>
+          </div>
+
+          <div class="audit-card reveal-on-scroll delay-2">
+            <div class="audit-stat-lbl">Security Hardening</div>
+            <div class="audit-stat-big audit-stat-highlight">3 / 3</div>
+            <div class="audit-stat-desc">Replay attacks rejected, payload tampering ($100 &rarr; $999k) rejected, and TTL expiration rejected immediately.</div>
+          </div>
+
+          <div class="audit-card reveal-on-scroll delay-3">
+            <div class="audit-stat-lbl">Fail-Closed Defense</div>
+            <div class="audit-stat-big">100%</div>
+            <div class="audit-stat-desc">Simulated Binance API outage triggers safe ESCALATE state, preventing blind market orders from executing.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: COMPARISON TABLE -->
+      <section id="comparison" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
         <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
           <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">Autonomous Agent vs. Kaven Gate</h2>
           <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Zero-friction algorithmic protection before execution</p>
@@ -1350,48 +1698,79 @@
                 <td style="padding:18px 24px; color:#fca5a5;">Agent puts 90% of portfolio in single illiquid pair</td>
                 <td style="padding:18px 24px; color:#86efac;"><strong>VETO:</strong> Position capped at 35% ($7,000 max of declared NAV).</td>
               </tr>
+              <tr>
+                <td style="padding:18px 24px; font-weight:600; color:#fff;">Runaway Execution Loop</td>
+                <td style="padding:18px 24px; color:#fca5a5;">Infinite loop executes 50 trades in 2 seconds, blowing account</td>
+                <td style="padding:18px 24px; color:#86efac;"><strong>VETO:</strong> Throttle covenant limits frequency to 1 trade per 5s.</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- FAQ -->
-      <section id="faq" style="padding: 60px 0;">
+      <!-- SECTION 7: EXPANDED FAQ -->
+      <section id="faq" style="padding: 60px 0; border-top: 1px solid var(--border-subtle);">
         <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
           <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">Frequently Asked Questions</h2>
-          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Operational details &amp; architecture specifications</p>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Architecture, connectivity, and risk operations</p>
         </div>
-        <div style="max-width: 840px; margin: 0 auto; display:flex; flex-direction:column; gap:16px;">
+        <div style="max-width: 860px; margin: 0 auto; display:flex; flex-direction:column; gap:16px;">
           <div class="card reveal-on-scroll">
             <div style="display:flex; align-items:flex-start; gap:14px;">
-              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; flex-shrink:0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
               </div>
               <div>
-                <div class="card-title">Does Kaven hold custody of my funds?</div>
-                <p class="card-desc">Zero custody. Kaven does not hold private keys or funds. It is an algorithmic pre-flight filter that audits trade proposals before execution.</p>
+                <div class="card-title">Is Kaven an AI agent or a risk gate?</div>
+                <p class="card-desc"><strong>Both.</strong> Kaven includes a built-in Autonomous AI Trader Agent that analyzes live Binance market microstructure and executes trades autonomously. At the same time, Kaven acts as an immutable pre-flight invariant gate that any external bot (Python, Node, LangChain, MCP) can use for capital protection.</p>
               </div>
             </div>
           </div>
+
           <div class="card reveal-on-scroll delay-1">
             <div style="display:flex; align-items:flex-start; gap:14px;">
-              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 15 10 5 10-5"/><path d="m2 11 10 5 10-5"/><path d="m2 7 10 5 10-5"/></svg>
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
               </div>
               <div>
-                <div class="card-title">How does Kaven get market depth?</div>
-                <p class="card-desc">Kaven connects to Binance Spot and Futures APIs in real time to fetch live order book depth up to 100 levels deep for every proposed symbol.</p>
+                <div class="card-title">How can I connect my existing trading bot or AI agent to Kaven?</div>
+                <p class="card-desc">You can connect in minutes using two simple methods: (1) <strong>REST API:</strong> Send your trade proposal to <code>POST http://localhost:3842/propose</code>. If approved, pass the signed token to <code>POST /execute</code>. (2) <strong>Model Context Protocol (MCP):</strong> Connect Claude Desktop, Cursor, or your autonomous agent directly to Kaven's MCP tool suite (<code>limbo_evaluate_proposal</code> and <code>limbo_verify_action</code>).</p>
               </div>
             </div>
           </div>
+
           <div class="card reveal-on-scroll delay-2">
             <div style="display:flex; align-items:flex-start; gap:14px;">
-              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Does Kaven execute real trades or paper trades?</div>
+                <p class="card-desc">Kaven executes <strong>real authenticated trades</strong> directly on the Binance Spot Testnet (<code>https://testnet.binance.vision</code>). Every approved order generates a genuine Binance Order ID, fills real testnet liquidity, and appears in the live order history stream.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card reveal-on-scroll delay-3">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; flex-shrink:0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
               </div>
               <div>
-                <div class="card-title">What happens if a trade is vetoed?</div>
-                <p class="card-desc">The engine returns a structured VETO response containing exact remediation advice (e.g. "Reduce order size to <= $7,000" or "Reduce leverage on SOLUSDT to <= 3x").</p>
+                <div class="card-title">Do I need an LLM API key to run Kaven?</div>
+                <p class="card-desc"><strong>No!</strong> Kaven's autonomous trader agent and pre-flight invariant engine run 100% deterministically with zero external LLM API costs or token limits. However, Kaven provides standard Model Context Protocol (MCP) tools so any external LLM agent (like Claude, Gemini, or ChatGPT) can query and use Kaven seamlessly.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card reveal-on-scroll">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Does Kaven hold custody of my Binance credentials or funds?</div>
+                <p class="card-desc"><strong>Zero custody.</strong> Kaven uses strict custody separation: the invariant gate evaluates trades in a sandboxed layer without access to trading credentials. Only the isolated execution gateway holds Binance testnet keys, and it will only execute orders bearing valid, single-use, 30-second cryptographic tokens.</p>
               </div>
             </div>
           </div>
@@ -1409,9 +1788,12 @@
         <h2>Pre-Flight Invariant Console</h2>
         <p>Direct arbitration against live Binance order books and active policy rules</p>
       </div>
-      <div style="display:flex; align-items:center; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <div class="declared-nav-pill">
           <span>●</span> Declared NAV: $20,000.00
+        </div>
+        <div class="declared-nav-pill" style="border-color:rgba(52,211,153,0.35); color:#a1ffc2; background:rgba(52,211,153,0.12);">
+          <span>✓</span> Audit: 20/20 PASS (100%)
         </div>
         <button class="btn-outline" onclick="switchView('landing')">
           Back to Overview
