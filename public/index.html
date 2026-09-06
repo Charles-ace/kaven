@@ -1417,6 +1417,8 @@
           Back to Overview
         </button>
       </div>
+    </div>
+
     <!-- AUTONOMOUS AI TRADER AGENT COCKPIT -->
     <div class="agent-cockpit-section">
       <div class="agent-cockpit-header">
@@ -2395,6 +2397,9 @@
 
     // Auto-load history on initialization
     window.addEventListener('DOMContentLoaded', () => {
+      if (window.location.pathname.includes('/app') || window.location.hash === '#app' || window.location.hash === '#console') {
+        switchView('console');
+      }
       loadOrderHistory();
       initScrollAnimations();
     });
