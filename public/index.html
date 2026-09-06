@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>KAVEN | Pre-Flight Invariant Gate for AI Agents on Binance</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="shortcut icon" href="/assets/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070908;
+      --bg-surface: #0e1210;
+      --bg-card: rgba(18, 22, 19, 0.75);
+      --bg-card-subtle: rgba(13, 16, 14, 0.7);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-subtle-light: rgba(255, 255, 255, 0.14);
+      --accent-mint: #34d399;
+      --accent-mint-bright: #a1ffc2;
+      --accent-gradient: linear-gradient(135deg, #a1ffc2 0%, #34d399 50%, #059669 100%);
+      --text-primary: #ffffff;
+      --text-body: rgba(255, 255, 255, 0.74);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --pass: #22c55e;
+      --veto: #ef4444;
+      --warn: #f59e0b;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+      --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scroll Progress Bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent-gradient);
+      z-index: 1000;
+      width: 0%;
+      transition: width 0.08s ease-out;
+    }
+
+    /* Top Nav Bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 9, 8, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 64px;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .brand-logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .brand-group:hover .brand-logo-img {
+      transform: scale(1.06);
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.65);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 9999px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-link {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+    .nav-link:hover { color: #fff; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+
+    /* Buttons */
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #070908;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-pill:hover {
+      background: var(--accent-mint-bright);
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.35);
+      transform: translateY(-1px);
+    }
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      text-decoration: none;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Container */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero Section (Edge-to-Edge with heyAura Volumetric Backdrop) */
+    .hero-section {
+      position: relative;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 0 60px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .hero-bg-wrapper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+      opacity: 0.92;
+      pointer-events: none;
+    }
+    .hero-glow-radial {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1100px, 100vw);
+      height: 280px;
+      background: radial-gradient(ellipse at center, rgba(52, 211, 153, 0.14) 0%, rgba(7, 9, 8, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Sleek Apple-style Hero Tag (NO loud green boxes or glowing dots) */
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #151816;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      padding: 6px 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .hero-tag-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      color: #cbd5e1;
+      text-transform: uppercase;
+    }
+
+    /* Apple-Grade Display Typography */
+    .hero-title {
+      font-size: clamp(2.75rem, 7vw, 76px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 22px;
+      color: #ffffff;
+    }
+    .hero-title span {
+      background: linear-gradient(135deg, #a1ffc2 0%, #34d399 50%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 28px rgba(52, 211, 153, 0.22));
+    }
+    .hero-desc {
+      font-size: clamp(16px, 2vw, 19px);
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.74);
+      max-width: 720px;
+      margin: 0 auto 38px;
+      line-height: 1.6;
+      letter-spacing: -0.015em;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 56px;
+      flex-wrap: wrap;
+    }
+
+    /* Apple-like Frosted Glass Cards */
+    .card {
+      background: rgba(18, 22, 19, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+    .card-icon-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-mint);
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-body);
+      line-height: 1.55;
+      margin-bottom: 0;
+    }
+
+    /* Grid Layouts */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    /* Baseline Invariant Stat Boxes (Apple Glass) */
+    .stat-box {
+      background: rgba(18, 22, 19, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: left;
+    }
+    .stat-box:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-mint);
+    }
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+    .stat-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Apple-Style Smooth Scroll Animations */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+    .delay-4 { transition-delay: 0.32s; }
+
+    /* Console Surfaces */
+    #view-console {
+      padding: 32px 0 80px;
+    }
+    .console-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .console-title-group h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .console-title-group p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    .declared-nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-mint-bright);
+    }
+
+    /* Presets Strip */
+    .presets-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .preset-card {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-card:hover {
+      background: #151a17;
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+    .preset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .preset-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .preset-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Form Inputs */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .text-input, .select-input {
+      width: 100%;
+      background: #090c0a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: #fff;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .text-input:focus, .select-input:focus {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .coin-pills {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .coin-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .coin-pill.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    /* Verdict Display */
+    .verdict-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-family: var(--font-mono);
+    }
+    .verdict-badge {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .verdict-PASS {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--pass);
+    }
+    .verdict-PASS .verdict-badge { background: var(--pass); color: #070908; }
+    
+    .verdict-VETO {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--veto);
+    }
+    .verdict-VETO .verdict-badge { background: var(--veto); color: #ffffff; }
+
+    .verdict-ESCALATE {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--warn);
+    }
+    .verdict-ESCALATE .verdict-badge { background: var(--warn); color: #070908; }
+
+    .receipt-hash {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+
+    .remediation-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: #fde047;
+      margin-bottom: 16px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .metric-item {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .metric-lbl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-num {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    /* Rules Table */
+    .rules-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+    .rules-table th {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .rules-table td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-body);
+    }
+    .badge-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge-PASS { background: rgba(34, 197, 94, 0.15); color: var(--pass); }
+    .badge-FAIL { background: rgba(239, 68, 68, 0.15); color: var(--veto); }
+    .badge-WARN { background: rgba(245, 158, 11, 0.15); color: var(--warn); }
+
+    /* Raw JSON details */
+    details summary {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0;
+    }
+    pre {
+      background: #050706;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      overflow-x: auto;
+      max-height: 240px;
+      margin-top: 8px;
+    }
+
+    /* Autonomous AI Trader Cockpit */
+    .agent-cockpit-section {
+      background: linear-gradient(180deg, rgba(16, 26, 21, 0.95) 0%, rgba(10, 16, 13, 0.85) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .agent-cockpit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .agent-cockpit-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--accent-mint);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .agent-dot-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-mint);
+      box-shadow: 0 0 8px var(--accent-mint);
+      animation: agentPulse 2s infinite;
+    }
+    @keyframes agentPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .agent-cockpit-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 3px;
+      letter-spacing: -0.02em;
+    }
+    .agent-cockpit-subtitle {
+      font-size: 12.5px;
+      color: var(--text-body);
+      margin-top: 4px;
+      max-width: 680px;
+      line-height: 1.5;
+    }
+    .agent-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-agent-run {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent-gradient);
+      color: #070908;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-agent-run:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 28px rgba(52, 211, 153, 0.6);
+    }
+    .agent-telemetry-box {
+      background: rgba(8, 12, 10, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .agent-telemetry-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .agent-telemetry-step:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .agent-step-icon {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+    .agent-step-content { flex: 1; line-height: 1.5; }
+
+    /* Curated Demo Cycle Section */
+    .demo-cycle-section {
+      background: linear-gradient(180deg, rgba(16, 22, 18, 0.9) 0%, rgba(10, 13, 11, 0.8) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.22);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+    .demo-cycle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .demo-cycle-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--accent-mint);
+      text-transform: uppercase;
+    }
+    .demo-cycle-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+    .demo-cycle-subtitle {
+      font-size: 12px;
+      color: var(--text-body);
+      margin-top: 2px;
+    }
+    .demo-cycle-badge {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--accent-mint);
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+    .demo-cycle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 860px) {
+      .demo-cycle-grid { grid-template-columns: 1fr; }
+    }
+    .demo-step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .demo-step-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    .demo-step-card.step-t1 { border-left: 3px solid var(--pass); }
+    .demo-step-card.step-t1:hover { border-color: rgba(34, 197, 94, 0.45); }
+    .demo-step-card.step-t2 { border-left: 3px solid var(--warn); }
+    .demo-step-card.step-t2:hover { border-color: rgba(245, 158, 11, 0.45); }
+    .demo-step-card.step-t3 { border-left: 3px solid var(--veto); }
+    .demo-step-card.step-t3:hover { border-color: rgba(239, 68, 68, 0.45); }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    .badge-tier1-pill {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--pass);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .badge-tier2-pill {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warn);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .badge-tier3-pill {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--veto);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .step-agent {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+    .step-trade {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-mint);
+      margin-bottom: 6px;
+    }
+    .demo-step-card.step-t2 .step-trade { color: #fde047; }
+    .demo-step-card.step-t3 .step-trade { color: #fca5a5; }
+    .step-detail {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .step-action-link {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-body);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .demo-step-card:hover .step-action-link { color: #ffffff; }
+
+    /* Execution Gateway */
+    .exec-gateway-card {
+      background: #090c0a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+    .exec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .exec-tier-tag {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .exec-tier-tag.t1-tag { color: var(--pass); }
+    .exec-tier-tag.t2-tag { color: var(--warn); }
+    .exec-tier-tag.t3-tag { color: var(--veto); }
+
+    .exec-badge-mono {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      color: var(--pass);
+    }
+    .exec-badge-mono.warn {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.25);
+      color: var(--warn);
+    }
+    .exec-badge-mono.veto {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.25);
+      color: var(--veto);
+    }
+
+    .exec-description {
+      font-size: 12px;
+      color: var(--text-body);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .exec-details-table {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      margin-bottom: 12px;
+    }
+    .exec-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .exec-k { color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; }
+    .exec-v { color: #ffffff; }
+    .exec-v.mono { font-family: var(--font-mono); }
+
+    .btn-exec-action {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+    }
+    .btn-t1-go {
+      background: var(--accent-gradient);
+      color: #070908;
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.3);
+    }
+    .btn-t1-go:hover {
+      box-shadow: 0 0 24px rgba(52, 211, 153, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Tier 2 Prominent Operator Sign-Off Container */
+    .tier2-banner-body {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .tier2-alert-headline {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fde047;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tier2-alert-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+    .tier2-summary-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+    .t2-metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .tier2-button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .btn-t2-approve {
+      background: #22c55e;
+      color: #070908;
+      font-weight: 700;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+    }
+    .btn-t2-approve:hover {
+      background: #4ade80;
+      box-shadow: 0 0 24px rgba(34, 197, 94, 0.5);
+      transform: translateY(-1px);
+    }
+    .btn-t2-discard {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #f87171;
+      font-weight: 700;
+    }
+    .btn-t2-discard:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Tier 3 Locked Container */
+    .tier3-banner-body {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .tier3-alert-headline {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #f87171;
+      margin-bottom: 4px;
+    }
+    .tier3-alert-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.45;
+    }
+    .btn-t3-blocked {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #f87171;
+      cursor: not-allowed;
+      font-size: 12.5px;
+    }
+
+    .exec-feedback-panel {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+    .feedback-success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #a7f3d0;
+    }
+    .feedback-warn {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fde047;
+    }
+    .feedback-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    /* History Table Card */
+    .history-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 0;
+      margin-top: 80px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll Progress Indicator -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Navigation -->
+  <header class="top-nav">
+    <div class="nav-inner">
+      <div class="brand-group" onclick="switchView('landing')">
+        <img src="/assets/kaven-logo.png" alt="Kaven" class="brand-logo-img" />
+        <span class="brand-name">KAVEN</span>
+        <span class="brand-badge">INVARIANT GATE</span>
+      </div>
+
+      <nav class="nav-links">
+        <a class="nav-link" href="#covenants" onclick="switchView('landing')">Covenants</a>
+        <a class="nav-link" href="#architecture" onclick="switchView('landing')">Architecture</a>
+        <a class="nav-link" href="#comparison" onclick="switchView('landing')">Comparison</a>
+        <a class="nav-link" href="#faq" onclick="switchView('landing')">FAQ</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn-pill" id="navActionBtn" onclick="switchView('console')">
+          Launch Console
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       VIEW 1: LANDING PAGE
+       ======================================================== -->
+  <div id="view-landing">
+    <!-- Hero Section with heyAura Volumetric Background -->
+    <section class="hero-section">
+      <div class="hero-bg-wrapper">
+        <img src="/assets/hero-bg.png" alt="" class="hero-bg-img" fetchpriority="high" draggable="false" />
+        <div class="hero-glow-radial"></div>
+      </div>
+
+      <div class="hero-content">
+        <!-- Sleek Apple-style Tag (Zero loud green tags or dots) -->
+        <div class="hero-tag reveal-on-scroll">
+          <span class="hero-tag-text">PRE-FLIGHT INVARIANT GATE &bull; BINANCE AGENT OS</span>
+        </div>
+
+        <h1 class="hero-title reveal-on-scroll delay-1">
+          Trade High Stakes.<br />
+          <span>Never Blow Up.</span>
+        </h1>
+
+        <p class="hero-desc reveal-on-scroll delay-2">
+          Kaven is the deterministic pre-flight invariant gate for Binance AI agents.
+          Walks live Binance L2 order books tick-by-tick before execution to eliminate slippage shocks,
+          excessive leverage, and portfolio concentration breaches.
+        </p>
+
+        <div class="hero-actions reveal-on-scroll delay-3">
+          <button class="btn-pill" onclick="switchView('console')">Launch Risk Console</button>
+          <a href="#covenants" class="btn-outline">View Invariant Rules</a>
+        </div>
+
+        <!-- Live Baseline Invariant Stats (Apple Glassmorphic Cards) -->
+        <div class="grid-4 reveal-on-scroll delay-4" id="covenants">
+          <div class="stat-box">
+            <div class="stat-header">
+              <div class="stat-label">Declared NAV</div>
+              <div class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              </div>
+            </div>
+            <div class="stat-val">$20,000</div>
+            <div class="stat-sub">Deterministic Portfolio Baseline</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-header">
+              <div class="stat-label">Concentration Cap</div>
+              <div class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              </div>
+            </div>
+            <div class="stat-val">35.0%</div>
+            <div class="stat-sub">Max $7,000.00 Single Asset</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-header">
+              <div class="stat-label">Max Leverage</div>
+              <div class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+            <div class="stat-val">10x / 3x</div>
+            <div class="stat-sub">10x BTC &amp; ETH | 3x Altcoins</div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-header">
+              <div class="stat-label">Slippage Ceiling</div>
+              <div class="stat-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>
+              </div>
+            </div>
+            <div class="stat-val">15.0 bps</div>
+            <div class="stat-sub">L2 VWAP Order Book Walking</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-container">
+      <!-- Architecture Section with Apple-like Icons -->
+      <section id="architecture" style="padding: 60px 0;">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">How Kaven Protects Capital</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">4-stage deterministic pre-execution pipeline</p>
+        </div>
+        <div class="grid-4">
+          <div class="card reveal-on-scroll">
+            <div class="card-icon-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="3"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">01 / INTERCEPT</div>
+            <div class="card-title">Trade Intent Proposal</div>
+            <p class="card-desc">The AI agent submits its proposed order (symbol, side, notional USD, leverage, order type) via REST or MCP tool before dispatching to Binance.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-1">
+            <div class="card-icon-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 15 10 5 10-5"/><path d="m2 11 10 5 10-5"/><path d="m2 7 10 5 10-5"/></svg>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">02 / BOOK-WALK</div>
+            <div class="card-title">Live L2 Depth Fetch</div>
+            <p class="card-desc">Kaven walks the real Binance L2 order book up to 100 levels deep to compute real VWAP and simulated price impact down to basis points.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-2">
+            <div class="card-icon-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">03 / ARBITRATE</div>
+            <div class="card-title">Invariant Evaluation</div>
+            <p class="card-desc">Checks leverage ceilings (10x major / 3x alt), 35% NAV concentration, and 15 bps slippage. Evaluates PASS, VETO, or ESCALATE.</p>
+          </div>
+          <div class="card reveal-on-scroll delay-3">
+            <div class="card-icon-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint); margin-bottom:6px; letter-spacing:0.06em;">04 / REMEDIATE</div>
+            <div class="card-title">Cryptographic Receipt</div>
+            <p class="card-desc">Returns an RFC-8785 canonical hash. If vetoed, returns exact corrective parameters so the bot can downsize and survive.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison Table -->
+      <section id="comparison" style="padding: 60px 0;">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">Autonomous Agent vs. Kaven Gate</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Zero-friction algorithmic protection before execution</p>
+        </div>
+        <div class="card reveal-on-scroll delay-1" style="padding:0; overflow:hidden;">
+          <table class="rules-table" style="margin-bottom:0;">
+            <thead>
+              <tr style="background: rgba(255,255,255,0.02);">
+                <th style="padding:18px 24px;">Risk Scenario</th>
+                <th style="padding:18px 24px; color:#fca5a5;">Unprotected Agent</th>
+                <th style="padding:18px 24px; color:var(--accent-mint-bright);">Kaven-Governed Agent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:18px 24px; font-weight:600; color:#fff;">Flash Liquidity Vacuum</td>
+                <td style="padding:18px 24px; color:#fca5a5;">Market order sweeps empty book; 80% loss in 1 tick</td>
+                <td style="padding:18px 24px; color:#86efac;"><strong>VETO:</strong> Slippage exceeds 15 bps limit. Order blocked.</td>
+              </tr>
+              <tr>
+                <td style="padding:18px 24px; font-weight:600; color:#fff;">Meme Coin FOMO at 10x</td>
+                <td style="padding:18px 24px; color:#fca5a5;">Liquidation within 3 minutes of adverse move</td>
+                <td style="padding:18px 24px; color:#86efac;"><strong>VETO:</strong> Altcoin leverage capped at 3x. Auto-remediation provided.</td>
+              </tr>
+              <tr>
+                <td style="padding:18px 24px; font-weight:600; color:#fff;">Concentration Over-Allocation</td>
+                <td style="padding:18px 24px; color:#fca5a5;">Agent puts 90% of portfolio in single illiquid pair</td>
+                <td style="padding:18px 24px; color:#86efac;"><strong>VETO:</strong> Position capped at 35% ($7,000 max of declared NAV).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" style="padding: 60px 0;">
+        <div style="text-align:center; margin-bottom: 36px;" class="reveal-on-scroll">
+          <h2 style="font-size: 30px; font-weight:700; letter-spacing:-0.03em;">Frequently Asked Questions</h2>
+          <p style="font-size: 14.5px; color:var(--text-muted); margin-top:8px;">Operational details &amp; architecture specifications</p>
+        </div>
+        <div style="max-width: 840px; margin: 0 auto; display:flex; flex-direction:column; gap:16px;">
+          <div class="card reveal-on-scroll">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+              </div>
+              <div>
+                <div class="card-title">Does Kaven hold custody of my funds?</div>
+                <p class="card-desc">Zero custody. Kaven does not hold private keys or funds. It is an algorithmic pre-flight filter that audits trade proposals before execution.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card reveal-on-scroll delay-1">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m2 15 10 5 10-5"/><path d="m2 11 10 5 10-5"/><path d="m2 7 10 5 10-5"/></svg>
+              </div>
+              <div>
+                <div class="card-title">How does Kaven get market depth?</div>
+                <p class="card-desc">Kaven connects to Binance Spot and Futures APIs in real time to fetch live order book depth up to 100 levels deep for every proposed symbol.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card reveal-on-scroll delay-2">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="card-icon-badge" style="width:36px; height:36px; margin-bottom:0; shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              </div>
+              <div>
+                <div class="card-title">What happens if a trade is vetoed?</div>
+                <p class="card-desc">The engine returns a structured VETO response containing exact remediation advice (e.g. "Reduce order size to <= $7,000" or "Reduce leverage on SOLUSDT to <= 3x").</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div> <!-- closing .main-container -->
+  </div> <!-- closing #view-landing -->
+
+  <!-- ========================================================
+       VIEW 2: CONSOLE (REAL API WORKSPACE)
+       ======================================================== -->
+  <div id="view-console" class="main-container" style="display:none;">
+    <div class="console-header-bar">
+      <div class="console-title-group">
+        <h2>Pre-Flight Invariant Console</h2>
+        <p>Direct arbitration against live Binance order books and active policy rules</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="declared-nav-pill">
+          <span>●</span> Declared NAV: $20,000.00
+        </div>
+        <button class="btn-outline" onclick="switchView('landing')">
+          Back to Overview
+        </button>
+      </div>
+    <!-- AUTONOMOUS AI TRADER AGENT COCKPIT -->
+    <div class="agent-cockpit-section">
+      <div class="agent-cockpit-header">
+        <div>
+          <div class="agent-cockpit-tag">
+            <div class="agent-dot-pulse"></div>
+            AUTONOMOUS AI TRADER AGENT &bull; LIVE BINANCE L2 REASONING
+          </div>
+          <h3 class="agent-cockpit-title">Autonomous Market Perception &amp; Pre-Flight Execution</h3>
+          <p class="agent-cockpit-subtitle">
+            The agent continuously perceives live Binance order book depth, calculates bid/ask volume pressure, formulates an explicit market thesis, and autonomously submits the trade to Kaven for pre-flight invariant arbitration.
+          </p>
+        </div>
+        <div class="agent-actions-bar">
+          <div class="coin-pills" style="margin-top:0;">
+            <button type="button" class="coin-pill active" id="pillAgentBTC" onclick="setAgentSymbol('BTCUSDT', this)">BTCUSDT</button>
+            <button type="button" class="coin-pill" id="pillAgentETH" onclick="setAgentSymbol('ETHUSDT', this)">ETHUSDT</button>
+            <button type="button" class="coin-pill" id="pillAgentSOL" onclick="setAgentSymbol('SOLUSDT', this)">SOLUSDT</button>
+          </div>
+          <button type="button" class="btn-agent-run" id="btnRunAutonomousAgent" onclick="runAutonomousAgent()">
+            <span>🤖</span> Run Autonomous Agent
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Agent Telemetry Stream -->
+      <div class="agent-telemetry-box" id="agentTelemetryBox">
+        <div class="agent-telemetry-step" id="agentStep1">
+          <span class="agent-step-icon">1 / PERCEPTION</span>
+          <div class="agent-step-content" id="agentStep1Content">
+            Scanning live Binance L2 order book depth...
+          </div>
+        </div>
+        <div class="agent-telemetry-step" id="agentStep2">
+          <span class="agent-step-icon">2 / THESIS</span>
+          <div class="agent-step-content" id="agentStep2Content" style="color:#a7f3d0;">
+            Analyzing microstructural pressure and formulating risk parameters...
+          </div>
+        </div>
+        <div class="agent-telemetry-step" id="agentStep3">
+          <span class="agent-step-icon">3 / ARBITRATION</span>
+          <div class="agent-step-content" id="agentStep3Content">
+            Evaluating covenants against declared portfolio limits...
+          </div>
+        </div>
+        <div class="agent-telemetry-step" id="agentStep4">
+          <span class="agent-step-icon">4 / TESTNET EXEC</span>
+          <div class="agent-step-content" id="agentStep4Content">
+            Dispatching cryptographic action to Binance Spot Testnet...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CURATED DEMO CYCLE (3-TIER INVARIANT SHOWCASE) -->
+    <div class="demo-cycle-section">
+      <div class="demo-cycle-header">
+        <div>
+          <span class="demo-cycle-tag">CURATED DEMO CYCLE</span>
+          <h3 class="demo-cycle-title">3-Tier Deterministic Execution Showcase</h3>
+          <p class="demo-cycle-subtitle">One-click evaluation across Agent Alpha (Auto-Approved), Agent Beta (Human Sign-Off), and Agent Gamma (Hard Veto)</p>
+        </div>
+        <div class="demo-cycle-badge">TESTNET-CONNECTED</div>
+      </div>
+      <div class="demo-cycle-grid">
+        <!-- Step 1: Agent Alpha (Tier 1) -->
+        <div class="demo-step-card step-t1" onclick="runDemoStep(1)">
+          <div class="step-top">
+            <span class="step-num">STEP 1</span>
+            <span class="badge-tier1-pill">TIER 1 AUTO</span>
+          </div>
+          <div class="step-agent">Agent Alpha: Safe Scalp</div>
+          <div class="step-trade">$100 BTCUSDT @ 1x</div>
+          <div class="step-detail">All covenants &le; 80% ceiling &bull; Cryptographically signed &bull; 1-click testnet auto-execute</div>
+          <div class="step-action-link">Run Step 1 &rarr;</div>
+        </div>
+
+        <!-- Step 2: Agent Beta (Tier 2) -->
+        <div class="demo-step-card step-t2" onclick="runDemoStep(2)">
+          <div class="step-top">
+            <span class="step-num">STEP 2</span>
+            <span class="badge-tier2-pill">TIER 2 HUMAN-IN-LOOP</span>
+          </div>
+          <div class="step-agent">Agent Beta: Caution Limit</div>
+          <div class="step-trade">$500 BTCUSDT @ 9x</div>
+          <div class="step-detail">Leverage at 90% of cap &bull; Automation paused &bull; Operator sign-off (Approve / Reject)</div>
+          <div class="step-action-link">Run Step 2 &rarr;</div>
+        </div>
+
+        <!-- Step 3: Agent Gamma (Tier 3) -->
+        <div class="demo-step-card step-t3" onclick="runDemoStep(3)">
+          <div class="step-top">
+            <span class="step-num">STEP 3</span>
+            <span class="badge-tier3-pill">TIER 3 HARD VETO</span>
+          </div>
+          <div class="step-agent">Agent Gamma: Reckless Breach</div>
+          <div class="step-trade">$15,000 DOGEUSDT @ 10x</div>
+          <div class="step-detail">Breaches 3x alt ceiling &amp; NAV limit &bull; Zero tokens minted &bull; Execution blocked</div>
+          <div class="step-action-link">Run Step 3 &rarr;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">
+      Secondary Stress Test Presets
+    </div>
+    <div class="presets-strip">
+      <div class="preset-card" onclick="runPreset('safe')">
+        <div class="preset-header">
+          <span class="preset-name">Safe BTC Order</span>
+          <span class="badge-status badge-PASS">PASS</span>
+        </div>
+        <div class="preset-desc">$2,000 BTCUSDT @ 2x (10% NAV, safe leverage)</div>
+      </div>
+
+      <div class="preset-card" onclick="runPreset('alt_leverage')">
+        <div class="preset-header">
+          <span class="preset-name">Altcoin Leverage Breach</span>
+          <span class="badge-status badge-FAIL">VETO</span>
+        </div>
+        <div class="preset-desc">$3,000 SOLUSDT @ 5x (breaches 3x alt limit)</div>
+      </div>
+
+      <div class="preset-card" onclick="runPreset('concentration')">
+        <div class="preset-header">
+          <span class="preset-name">NAV Concentration Breach</span>
+          <span class="badge-status badge-FAIL">VETO</span>
+        </div>
+        <div class="preset-desc">$12,000 BTCUSDT @ 1x (60% NAV, breaches 35% cap)</div>
+      </div>
+
+      <div class="preset-card" onclick="runPreset('pepe_shock')">
+        <div class="preset-header">
+          <span class="preset-name">PEPE Liquidity Shock</span>
+          <span class="badge-status badge-FAIL">VETO</span>
+        </div>
+        <div class="preset-desc">$500,000 PEPEUSDT @ 1x (multi-level slippage breach)</div>
+      </div>
+    </div>
+
+    <!-- 2-Column Responsive Workspace -->
+    <div class="grid-2">
+      <!-- LEFT: Form Input -->
+      <div class="card">
+        <div class="card-title">Trade Intent Parameters</div>
+        <p class="card-desc">Submit proposed order to walk live Binance L2 depth</p>
+
+        <form id="tradeForm" onsubmit="submitTrade(event)">
+          <div class="form-group">
+            <label class="form-label" for="agentId">Agent ID</label>
+            <input type="text" id="agentId" class="text-input" value="autonomous-bot-1" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="symbol">Symbol</label>
+            <input type="text" id="symbol" class="text-input" value="BTCUSDT" required />
+            <div class="coin-pills">
+              <button type="button" class="coin-pill active" onclick="setCoin('BTCUSDT', this)">BTC</button>
+              <button type="button" class="coin-pill" onclick="setCoin('ETHUSDT', this)">ETH</button>
+              <button type="button" class="coin-pill" onclick="setCoin('SOLUSDT', this)">SOL</button>
+              <button type="button" class="coin-pill" onclick="setCoin('DOGEUSDT', this)">DOGE</button>
+              <button type="button" class="coin-pill" onclick="setCoin('PEPEUSDT', this)">PEPE</button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="side">Side</label>
+              <select id="side" class="select-input">
+                <option value="BUY" selected>BUY (Long)</option>
+                <option value="SELL">SELL (Short)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="usd">Notional (USD)</label>
+              <input type="number" id="usd" class="text-input" value="2000" min="1" step="any" required />
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label class="form-label" for="leverage">Leverage (<span id="levDisplay">2</span>x)</label>
+              <input type="range" id="leverage" min="1" max="20" value="2" oninput="document.getElementById('levDisplay').textContent=this.value" style="width:100%; accent-color:var(--accent-mint); margin-top:8px;" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="orderType">Order Type</label>
+              <select id="orderType" class="select-input">
+                <option value="MARKET" selected>MARKET</option>
+                <option value="LIMIT">LIMIT</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="evalBtn" class="btn-pill" style="width:100%; height:44px; margin-top:8px;">
+            Evaluate Pre-Flight Invariants
+          </button>
+        </form>
+      </div>
+
+      <!-- RIGHT: Verdict & Metrics Result -->
+      <div class="card" id="verdictCard">
+        <div class="card-title">Pre-Flight Arbitration Result</div>
+        <p class="card-desc" id="verdictSub">Live deterministic evaluation from POST /propose</p>
+
+        <!-- Verdict Banner -->
+        <div id="bannerBox" class="verdict-banner verdict-PASS">
+          <div>
+            <span class="verdict-badge" id="decisionText">READY</span>
+          </div>
+          <div class="receipt-hash" id="receiptHash">Ready to evaluate</div>
+        </div>
+
+        <!-- Remediation Guidance Box (Hidden when PASS) -->
+        <div id="remediationBox" class="remediation-box" style="display:none;"></div>
+
+        <!-- EXECUTION GATEWAY (PR #325 / BINANCE TESTNET) -->
+        <div id="executionGateway" class="exec-gateway-card" style="display:none;">
+          <!-- TIER 1: AUTO-EXECUTION AUTHORIZED -->
+          <div id="tier1Box" style="display:none;">
+            <div class="exec-header">
+              <div class="exec-tier-tag t1-tag">⚡ TIER 1: AUTO-EXECUTION AUTHORIZED</div>
+              <div class="exec-badge-mono">RFC 8785 ED25519 SIGNED</div>
+            </div>
+            <p class="exec-description">
+              All invariant checks cleared within conservative safety boundaries (&le; 80% ceiling). Cryptographic execution payload signed.
+            </p>
+            <div class="exec-details-table">
+              <div class="exec-detail-row">
+                <span class="exec-k">Signed Action ID:</span>
+                <span class="exec-v mono" id="t1ActionId">-</span>
+              </div>
+              <div class="exec-detail-row">
+                <span class="exec-k">Authorization:</span>
+                <span class="exec-v" style="color:var(--pass);">Auto-Cleared (Zero Human Friction)</span>
+              </div>
+              <div class="exec-detail-row">
+                <span class="exec-k">Target Gateway:</span>
+                <span class="exec-v mono">POST https://testnet.binance.vision/api/v3/order</span>
+              </div>
+            </div>
+            <button type="button" id="btnT1Execute" class="btn-exec-action btn-t1-go" onclick="executeTier1Order()">
+              ⚡ Dispatch &amp; Execute on Binance Spot Testnet
+            </button>
+            <div id="t1ResultBox" class="exec-feedback-panel" style="display:none;"></div>
+          </div>
+
+          <!-- TIER 2: HUMAN OPERATOR AUTHORIZATION REQUIRED (EQUAL VISUAL PROMINENCE) -->
+          <div id="tier2Box" style="display:none;">
+            <div class="exec-header">
+              <div class="exec-tier-tag t2-tag">⚠️ TIER 2: OPERATOR SIGN-OFF REQUIRED</div>
+              <div class="exec-badge-mono warn">AUTOMATION PAUSED</div>
+            </div>
+            <div class="tier2-banner-body">
+              <div class="tier2-alert-headline">
+                <span>⚠️</span> High-Risk / Borderline Trade Detected
+              </div>
+              <p class="tier2-alert-text">
+                An autonomous agent proposed a trade exceeding conservative thresholds. Kaven has paused execution and staged this order in the pending authorization queue.
+              </p>
+              <div class="tier2-summary-card">
+                <div class="t2-metric-row">
+                  <span style="color:var(--text-muted);">Proposed Trade:</span>
+                  <strong id="t2ProposedTrade" style="color:#ffffff;">BUY $500 BTCUSDT @ 9x</strong>
+                </div>
+                <div class="t2-metric-row">
+                  <span style="color:var(--text-muted);">Caution Trigger:</span>
+                  <span id="t2CautionTrigger" style="color:#fde047; font-weight:600;">Leverage at 90% of ceiling</span>
+                </div>
+                <div class="t2-metric-row">
+                  <span style="color:var(--text-muted);">Action ID:</span>
+                  <span id="t2ActionId" class="mono" style="font-size:11px; color:var(--text-body);">-</span>
+                </div>
+              </div>
+            </div>
+            <div class="tier2-button-group">
+              <button type="button" id="btnT2Approve" class="btn-exec-action btn-t2-approve" onclick="confirmTier2Order(true)">
+                ✓ Approve &amp; Execute on Binance
+              </button>
+              <button type="button" id="btnT2Discard" class="btn-exec-action btn-t2-discard" onclick="confirmTier2Order(false)">
+                ✕ Reject &amp; Discard Proposal
+              </button>
+            </div>
+            <div id="t2ResultBox" class="exec-feedback-panel" style="display:none;"></div>
+          </div>
+
+          <!-- TIER 3: HARD VETO -->
+          <div id="tier3Box" style="display:none;">
+            <div class="exec-header">
+              <div class="exec-tier-tag t3-tag">🛑 TIER 3: EXECUTION PHYSICALLY BLOCKED</div>
+              <div class="exec-badge-mono veto">HARD VETO</div>
+            </div>
+            <div class="tier3-banner-body">
+              <div class="tier3-alert-headline">Covenant Violation: Execution Denied</div>
+              <p class="tier3-alert-text">
+                Trade proposal breached critical safety covenants. Cryptographic gateway dropped the proposal and refused to mint an execution signature. No Binance API call can occur.
+              </p>
+            </div>
+            <button type="button" class="btn-exec-action btn-t3-blocked" disabled>
+              🚫 Execution Blocked: Zero Signed Tokens Issued
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-lbl">Live Best Price</div>
+            <div class="metric-num" id="mBest">-</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-lbl">Live VWAP</div>
+            <div class="metric-num" id="mVwap">-</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-lbl">Depth Slippage</div>
+            <div class="metric-num" id="mSlip">-</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-lbl">Levels Walked</div>
+            <div class="metric-num" id="mLevels">-</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-lbl">NAV Allocation</div>
+            <div class="metric-num" id="mNav">-</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-lbl">Data Source</div>
+            <div class="metric-num" id="mSource" style="font-size:12px;">-</div>
+          </div>
+        </div>
+
+        <!-- Covenant Checks Table -->
+        <div style="font-size:12px; font-weight:600; margin-bottom:8px; color:#fff;">Covenant Checklist</div>
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Threshold</th>
+              <th>Actual</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="rulesBody">
+            <tr>
+              <td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">
+                Submit a proposal to walk order book
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Raw JSON Drawer -->
+        <details>
+          <summary>Raw API Payload (Audit Transparency)</summary>
+          <pre><code id="jsonBox">{}</code></pre>
+        </details>
+      </div>
+    </div>
+
+    <!-- LIVE BINANCE SPOT TESTNET ORDER HISTORY TABLE -->
+    <div class="card" id="historyCard" style="margin-top:24px;">
+      <div class="history-header-bar">
+        <div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="card-title" style="margin-bottom:0;">Live Binance Spot Testnet Order History</div>
+            <span class="badge-status badge-PASS" id="historyCountBadge">Querying...</span>
+          </div>
+          <p class="card-desc" style="margin-bottom:0; margin-top:4px;">
+            Genuine fills and order states fetched live from Binance Spot Testnet API (<code>GET /api/v3/allOrders</code>)
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="coin-pills" style="margin-top:0;">
+            <button type="button" class="coin-pill active" id="pillHistBTC" onclick="setHistoryPair('BTCUSDT', this)">BTCUSDT</button>
+            <button type="button" class="coin-pill" id="pillHistETH" onclick="setHistoryPair('ETHUSDT', this)">ETHUSDT</button>
+            <button type="button" class="coin-pill" id="pillHistSOL" onclick="setHistoryPair('SOLUSDT', this)">SOLUSDT</button>
+            <button type="button" class="coin-pill" id="pillHistDOGE" onclick="setHistoryPair('DOGEUSDT', this)">DOGEUSDT</button>
+          </div>
+          <button type="button" id="btnRefreshHistory" class="btn-outline" style="padding:6px 14px; font-size:12px; cursor:pointer;" onclick="loadOrderHistory()">
+            ↻ Refresh Orders
+          </button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; margin-top:16px;">
+        <table class="rules-table" style="margin-bottom:0;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Type</th>
+              <th>Executed Qty</th>
+              <th>Total Quote ($)</th>
+              <th>Status</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr>
+              <td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">
+                Connecting to Binance Spot Testnet...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="main-container">
+      <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-weight:700; color:#fff;">KAVEN</span> &mdash; Invariant Risk Governance Protocol
+      </div>
+      <div>Compatible with PR #325 &amp; PR #328 &bull; Binance Agent OS &bull; 100% Real L2 Order Book Depth</div>
+    </div>
+  </footer>
+
+  <script>
+    let lastVerdictData = null;
+    let currentHistorySymbol = 'BTCUSDT';
+    let currentAgentSymbol = 'BTCUSDT';
+
+    function setAgentSymbol(sym, btn) {
+      document.querySelectorAll('#pillAgentBTC, #pillAgentETH, #pillAgentSOL').forEach(p => p.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      currentAgentSymbol = sym;
+    }
+
+    async function runAutonomousAgent() {
+      const btn = document.getElementById('btnRunAutonomousAgent');
+      const box = document.getElementById('agentTelemetryBox');
+      const s1 = document.getElementById('agentStep1Content');
+      const s2 = document.getElementById('agentStep2Content');
+      const s3 = document.getElementById('agentStep3Content');
+      const s4 = document.getElementById('agentStep4Content');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⚡</span> Agent Scanning...';
+      }
+      if (box) box.style.display = 'flex';
+
+      s1.innerHTML = `<span style="color:var(--accent-mint);">[SCANNING]</span> Fetching live Binance L2 order book depth for ${currentAgentSymbol}...`;
+      s2.innerHTML = `<span style="color:var(--text-muted);">Awaiting market perception telemetry...</span>`;
+      s3.innerHTML = `<span style="color:var(--text-muted);">Awaiting trade intent generation...</span>`;
+      s4.innerHTML = `<span style="color:var(--text-muted);">Awaiting pre-flight gate clearance...</span>`;
+
+      try {
+        const res = await fetch('/agent/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symbol: currentAgentSymbol })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          throw new Error(data.error || 'Agent run failed');
+        }
+
+        const a = data.proposal.analysis;
+        const p = data.proposal;
+        const v = data.verdict;
+        const e = data.execution;
+
+        // Step 1: Perception
+        s1.innerHTML = `
+          <strong>${escapeHtml(a.symbol)}</strong> &bull; Spot Price: <span style="color:#fff; font-weight:600;">$${Number(a.price).toLocaleString()}</span>
+          &bull; 24h: <span style="color:${a.priceChange24hPct >= 0 ? 'var(--pass)' : 'var(--veto)'}; font-weight:600;">${a.priceChange24hPct >= 0 ? '+' : ''}${a.priceChange24hPct.toFixed(2)}%</span>
+          &bull; Bid Depth: <span style="color:var(--accent-mint); font-weight:600;">${a.bidPressurePct}%</span>
+          &bull; Spread: <span>${a.spreadBps} bps</span>
+          &bull; Volatility: <span class="badge-status badge-PASS">${a.volatilityBand}</span>
+        `;
+
+        // Step 2: Thesis & Intent
+        s2.innerHTML = `
+          <div style="font-weight:600; color:#ffffff; margin-bottom:4px;">Market Thesis &amp; Trade Intent:</div>
+          <div style="color:#a7f3d0; margin-bottom:4px;">"${escapeHtml(a.thesis)}"</div>
+          <div style="font-size:11px; color:#cbd5e1;">Proposed Order: <strong style="color:#fff;">${p.side} $${p.notionalUsd} ${p.symbol} @ ${p.leverage}x (${p.orderType})</strong></div>
+        `;
+
+        // Step 3: Arbitration
+        const tierClass = v.tier === 'TIER_1_AUTO' ? 'badge-PASS' : 'badge-WARN';
+        s3.innerHTML = `
+          Verdict: <span class="badge-status ${tierClass}">${v.decision} (${v.tier})</span>
+          &bull; L2 VWAP Slippage: <strong>${v.simulation?.slippageBps || 0} bps</strong> (Ceiling: 15.0 bps)
+          &bull; NAV Exposure: <strong>${((p.notionalUsd / 20000) * 100).toFixed(2)}%</strong> (Cap: 35.0%)
+          &bull; Action Token: <span style="color:var(--text-muted); font-size:10.5px;">${v.signedAction?.actionId || 'None'}</span>
+        `;
+
+        // Step 4: Execution
+        if (e && e.status === 'FILLED') {
+          const bo = e.binanceResponse;
+          s4.innerHTML = `
+            <span class="badge-status badge-PASS">FILLED ON BINANCE TESTNET</span>
+            &bull; Order ID: <strong style="color:#fff;">#${bo.orderId}</strong>
+            &bull; Executed Qty: <strong>${bo.executedQty} ${p.symbol.replace('USDT','')}</strong>
+            &bull; Cumulative Quote: <span style="color:var(--accent-mint);">$${Number(bo.cummulativeQuoteQty).toFixed(2)}</span>
+            &bull; Type: <span>${e.executionType}</span>
+          `;
+          currentHistorySymbol = p.symbol;
+          loadOrderHistory();
+        } else {
+          s4.innerHTML = `
+            <span class="badge-status badge-WARN">COMPLETED</span>
+            &bull; Result: ${escapeHtml(e?.reason || 'Evaluated successfully')}
+          `;
+        }
+      } catch (err) {
+        s4.innerHTML = `<span style="color:var(--veto);">Agent Error: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🤖</span> Run Autonomous Agent';
+        }
+      }
+    }
+
+    // View Switcher
+    function switchView(view) {
+      const land = document.getElementById('view-landing');
+      const cons = document.getElementById('view-console');
+      const btn = document.getElementById('navActionBtn');
+
+      if (view === 'console') {
+        land.style.display = 'none';
+        cons.style.display = 'block';
+        btn.textContent = 'Landing Page';
+        btn.onclick = () => switchView('landing');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        loadOrderHistory();
+      } else {
+        cons.style.display = 'none';
+        land.style.display = 'block';
+        btn.textContent = 'Launch Console';
+        btn.onclick = () => switchView('console');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // Coin Pill Selector
+    function setCoin(sym, btn) {
+      document.querySelectorAll('.coin-pill').forEach(p => p.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('symbol').value = sym;
+    }
+
+    // Curated Demo Cycle (3-Tier Showcase)
+    function runDemoStep(step) {
+      switchView('console');
+      if (step === 1) {
+        // Step 1: Agent Alpha (Tier 1 Safe Scalp)
+        document.getElementById('agentId').value = 'agent-alpha-scalper';
+        document.getElementById('symbol').value = 'BTCUSDT';
+        setCoin('BTCUSDT', document.querySelector('.coin-pills .coin-pill:first-child'));
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '100';
+        document.getElementById('leverage').value = '1';
+        document.getElementById('levDisplay').textContent = '1';
+        document.getElementById('orderType').value = 'MARKET';
+      } else if (step === 2) {
+        // Step 2: Agent Beta (Tier 2 Caution / Human-in-the-Loop)
+        document.getElementById('agentId').value = 'agent-beta-momentum';
+        document.getElementById('symbol').value = 'BTCUSDT';
+        setCoin('BTCUSDT', document.querySelector('.coin-pills .coin-pill:first-child'));
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '500';
+        document.getElementById('leverage').value = '9';
+        document.getElementById('levDisplay').textContent = '9';
+        document.getElementById('orderType').value = 'MARKET';
+      } else if (step === 3) {
+        // Step 3: Agent Gamma (Tier 3 Reckless / Hard Veto)
+        document.getElementById('agentId').value = 'agent-gamma-degen';
+        document.getElementById('symbol').value = 'DOGEUSDT';
+        document.querySelectorAll('.coin-pills .coin-pill').forEach(p => {
+          if (p.textContent === 'DOGE') p.classList.add('active');
+          else p.classList.remove('active');
+        });
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '15000';
+        document.getElementById('leverage').value = '10';
+        document.getElementById('levDisplay').textContent = '10';
+        document.getElementById('orderType').value = 'MARKET';
+      }
+      submitTrade();
+    }
+
+    // Secondary Quick Presets
+    function runPreset(type) {
+      switchView('console');
+      if (type === 'safe') {
+        document.getElementById('agentId').value = 'bot-conservative';
+        document.getElementById('symbol').value = 'BTCUSDT';
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '2000';
+        document.getElementById('leverage').value = '2';
+        document.getElementById('levDisplay').textContent = '2';
+      } else if (type === 'alt_leverage') {
+        document.getElementById('agentId').value = 'bot-solana';
+        document.getElementById('symbol').value = 'SOLUSDT';
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '3000';
+        document.getElementById('leverage').value = '5';
+        document.getElementById('levDisplay').textContent = '5';
+      } else if (type === 'concentration') {
+        document.getElementById('agentId').value = 'bot-heavy';
+        document.getElementById('symbol').value = 'BTCUSDT';
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '12000';
+        document.getElementById('leverage').value = '1';
+        document.getElementById('levDisplay').textContent = '1';
+      } else if (type === 'pepe_shock') {
+        document.getElementById('agentId').value = 'bot-whale';
+        document.getElementById('symbol').value = 'PEPEUSDT';
+        document.getElementById('side').value = 'BUY';
+        document.getElementById('usd').value = '500000';
+        document.getElementById('leverage').value = '1';
+        document.getElementById('levDisplay').textContent = '1';
+      }
+      submitTrade();
+    }
+
+    // Real API Trade Submission
+    async function submitTrade(e) {
+      if (e) e.preventDefault();
+      const btn = document.getElementById('evalBtn');
+      btn.disabled = true;
+      btn.textContent = 'Walking Order Book & Arbitrating...';
+
+      const payload = {
+        agentId: document.getElementById('agentId').value.trim() || 'bot-1',
+        symbol: document.getElementById('symbol').value.trim().toUpperCase(),
+        side: document.getElementById('side').value,
+        usd: parseFloat(document.getElementById('usd').value),
+        leverage: parseFloat(document.getElementById('leverage').value),
+        orderType: document.getElementById('orderType').value
+      };
+
+      try {
+        const res = await fetch('/propose', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        renderVerdict(data);
+      } catch (err) {
+        alert('API Request Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Evaluate Pre-Flight Invariants';
+      }
+    }
+
+    // Render Real Verdict & Execution Gateway
+    function renderVerdict(data) {
+      lastVerdictData = data;
+
+      const banner = document.getElementById('bannerBox');
+      const decText = document.getElementById('decisionText');
+      const hashText = document.getElementById('receiptHash');
+      const remBox = document.getElementById('remediationBox');
+
+      const decision = (data.verdict && data.verdict.decision) || 'VETO';
+      banner.className = 'verdict-banner verdict-' + decision;
+      decText.textContent = decision;
+      hashText.textContent = data.actionRef ? 'Hash: ' + data.actionRef.slice(0, 24) + '...' : '';
+
+      if (data.remediation && decision !== 'PASS') {
+        remBox.style.display = 'block';
+        remBox.innerHTML = '<strong>Remediation:</strong> ' + escapeHtml(data.remediation);
+      } else {
+        remBox.style.display = 'none';
+      }
+
+      const sim = (data.verdict && data.verdict.simulation) || {};
+      document.getElementById('mBest').textContent = sim.bestPrice ? '$' + sim.bestPrice.toLocaleString() : '-';
+      document.getElementById('mVwap').textContent = sim.vwap ? '$' + sim.vwap.toLocaleString() : '-';
+      document.getElementById('mSlip').textContent = sim.slippageBps !== undefined ? sim.slippageBps.toFixed(2) + ' bps' : '-';
+      document.getElementById('mLevels').textContent = sim.levelsConsumed !== undefined ? sim.levelsConsumed : '-';
+      document.getElementById('mNav').textContent = sim.navConcentrationPct !== undefined ? sim.navConcentrationPct + '%' : '-';
+      document.getElementById('mSource').textContent = sim.dataSource || '-';
+
+      const tbody = document.getElementById('rulesBody');
+      tbody.innerHTML = '';
+      const checks = (data.verdict && data.verdict.ruleChecks) || [];
+      checks.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(c.rule)}</strong></td>
+          <td>${escapeHtml(c.threshold)}</td>
+          <td>${escapeHtml(c.actual)}</td>
+          <td><span class="badge-status badge-${c.status}">${c.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('jsonBox').textContent = JSON.stringify(data, null, 2);
+
+      // Render Execution Gateway state based on risk tier
+      const gateway = document.getElementById('executionGateway');
+      const t1Box = document.getElementById('tier1Box');
+      const t2Box = document.getElementById('tier2Box');
+      const t3Box = document.getElementById('tier3Box');
+      const t1Res = document.getElementById('t1ResultBox');
+      const t2Res = document.getElementById('t2ResultBox');
+
+      gateway.style.display = 'block';
+      t1Box.style.display = 'none';
+      t2Box.style.display = 'none';
+      t3Box.style.display = 'none';
+      t1Res.style.display = 'none';
+      t2Res.style.display = 'none';
+
+      const tier = data.tier || (decision === 'PASS' ? 'TIER_1_AUTO' : 'TIER_3_VETO');
+
+      if (tier === 'TIER_1_AUTO') {
+        t1Box.style.display = 'block';
+        document.getElementById('t1ActionId').textContent = data.signedAction?.payload?.actionId || data.actionRef || '-';
+        const btn1 = document.getElementById('btnT1Execute');
+        btn1.disabled = false;
+        btn1.textContent = '⚡ Dispatch & Execute on Binance Spot Testnet';
+      } else if (tier === 'TIER_2_HUMAN_ACK') {
+        t2Box.style.display = 'block';
+        const notionalFormatted = data.notionalUsd ? Number(data.notionalUsd).toLocaleString() : '0';
+        const lev = data.signedAction?.payload?.leverage || (data.verdict?.simulation?.leverageUsed) || 1;
+        document.getElementById('t2ProposedTrade').textContent = `${data.side} $${notionalFormatted} ${data.symbol} @ ${lev}x`;
+        document.getElementById('t2CautionTrigger').textContent = data.signedAction?.payload?.tierReason || 'Caution: Borderline risk ceiling reached';
+        document.getElementById('t2ActionId').textContent = data.signedAction?.payload?.actionId || '-';
+        const btnApprove = document.getElementById('btnT2Approve');
+        const btnDiscard = document.getElementById('btnT2Discard');
+        btnApprove.disabled = false;
+        btnDiscard.disabled = false;
+        btnApprove.textContent = '✓ Approve & Execute on Binance';
+        btnDiscard.textContent = '✕ Reject & Discard Proposal';
+      } else {
+        // TIER_3_VETO
+        t3Box.style.display = 'block';
+      }
+    }
+
+    // Execute Tier 1 Approved Order on Binance Spot Testnet
+    async function executeTier1Order() {
+      if (!lastVerdictData || !lastVerdictData.signedAction) {
+        alert('No cryptographic execution token available for this proposal.');
+        return;
+      }
+      const btn = document.getElementById('btnT1Execute');
+      const box = document.getElementById('t1ResultBox');
+      btn.disabled = true;
+      btn.textContent = 'Dispatching to Binance Spot Testnet...';
+      box.style.display = 'none';
+
+      try {
+        const res = await fetch('/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signedAction: lastVerdictData.signedAction })
+        });
+        const out = await res.json();
+        box.style.display = 'block';
+
+        if (out.status === 'FILLED') {
+          const b = out.binanceResponse || {};
+          box.className = 'exec-feedback-panel feedback-success';
+          box.innerHTML = `
+            <strong>✓ ORDER FILLED ON BINANCE SPOT TESTNET (AUTO-EXECUTE)</strong><br />
+            • Binance Order ID: <strong>${b.orderId || '-'}</strong><br />
+            • Executed Qty: <strong>${b.executedQty || '-'} ${lastVerdictData.symbol}</strong><br />
+            • Total Quote: $${Number(b.cummulativeQuoteQty || lastVerdictData.notionalUsd).toFixed(2)} USDT<br />
+            • Gateway Type: ${out.executionType || 'AUTO_EXECUTE'}<br />
+            • Execution Status: <span style="color:var(--pass); font-weight:700;">${b.status || 'FILLED'}</span>
+          `;
+          loadOrderHistory();
+        } else {
+          box.className = 'exec-feedback-panel feedback-error';
+          box.innerHTML = `
+            <strong>Binance Execution Status: ${escapeHtml(out.status || 'REJECTED')}</strong><br />
+            ${escapeHtml(out.error || out.reason || 'Binance Spot Testnet API rejected the order.')}
+          `;
+        }
+      } catch (err) {
+        box.style.display = 'block';
+        box.className = 'exec-feedback-panel feedback-error';
+        box.innerHTML = `<strong>Execution Gateway Network Error:</strong> ${escapeHtml(err.message)}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Dispatch & Execute on Binance Spot Testnet';
+      }
+    }
+
+    // Confirm or Discard Tier 2 Pending Order
+    async function confirmTier2Order(approve) {
+      if (!lastVerdictData || !lastVerdictData.signedAction) {
+        alert('No Tier 2 signed action available.');
+        return;
+      }
+      const actionId = lastVerdictData.signedAction.payload.actionId;
+      const btnApprove = document.getElementById('btnT2Approve');
+      const btnDiscard = document.getElementById('btnT2Discard');
+      const box = document.getElementById('t2ResultBox');
+
+      btnApprove.disabled = true;
+      btnDiscard.disabled = true;
+      if (approve) {
+        btnApprove.textContent = 'Authorizing & Dispatching...';
+      } else {
+        btnDiscard.textContent = 'Discarding Proposal...';
+      }
+      box.style.display = 'none';
+
+      try {
+        // Stage in pending queue
+        await fetch('/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signedAction: lastVerdictData.signedAction })
+        });
+
+        // Submit explicit human operator sign-off
+        const res = await fetch('/execute/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ actionId, approve })
+        });
+        const out = await res.json();
+        box.style.display = 'block';
+
+        if (approve) {
+          if (out.status === 'FILLED') {
+            const b = out.binanceResponse || {};
+            box.className = 'exec-feedback-panel feedback-success';
+            box.innerHTML = `
+              <strong>✓ OPERATOR AUTHORIZATION CONFIRMED &bull; ORDER FILLED ON BINANCE</strong><br />
+              • Binance Order ID: <strong>${b.orderId || '-'}</strong><br />
+              • Executed Qty: <strong>${b.executedQty || '-'} ${lastVerdictData.symbol}</strong><br />
+              • Total Quote: $${Number(b.cummulativeQuoteQty || lastVerdictData.notionalUsd).toFixed(2)} USDT<br />
+              • Execution Type: <span style="color:var(--pass); font-weight:700;">HUMAN_CONFIRMED</span>
+            `;
+            loadOrderHistory();
+          } else {
+            box.className = 'exec-feedback-panel feedback-error';
+            box.innerHTML = `
+              <strong>Binance Execution Status: ${escapeHtml(out.status || 'REJECTED')}</strong><br />
+              ${escapeHtml(out.error || out.reason || 'Binance Spot Testnet API rejected the order.')}
+            `;
+          }
+        } else {
+          box.className = 'exec-feedback-panel feedback-warn';
+          box.innerHTML = `
+            <strong>✕ PROPOSAL DISCARDED BY OPERATOR</strong><br />
+            Action ID <code>${escapeHtml(actionId)}</code> successfully revoked. Zero trades dispatched to Binance API.
+          `;
+        }
+      } catch (err) {
+        box.style.display = 'block';
+        box.className = 'exec-feedback-panel feedback-error';
+        box.innerHTML = `<strong>Gateway Error:</strong> ${escapeHtml(err.message)}`;
+      } finally {
+        btnApprove.disabled = false;
+        btnDiscard.disabled = false;
+        btnApprove.textContent = '✓ Approve & Execute on Binance';
+        btnDiscard.textContent = '✕ Reject & Discard Proposal';
+      }
+    }
+
+    // Set Live Order History Pair Tab
+    function setHistoryPair(sym, btn) {
+      document.querySelectorAll('#historyCard .coin-pill').forEach(p => p.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      currentHistorySymbol = sym;
+      loadOrderHistory();
+    }
+
+    // Query Live Binance Spot Testnet Orders
+    async function loadOrderHistory() {
+      const btn = document.getElementById('btnRefreshHistory');
+      const badge = document.getElementById('historyCountBadge');
+      const tbody = document.getElementById('historyTableBody');
+
+      if (btn) btn.textContent = '↻ Querying...';
+
+      try {
+        const res = await fetch(`/history?symbol=${currentHistorySymbol}`);
+        const data = await res.json();
+        const orders = data.orders || [];
+
+        if (badge) badge.textContent = `${orders.length} Orders (${currentHistorySymbol})`;
+
+        if (orders.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">
+                No orders recorded yet on Binance Spot Testnet for ${escapeHtml(currentHistorySymbol)}.
+              </td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML = '';
+          // Show newest orders first
+          const rev = [...orders].reverse();
+          rev.forEach(o => {
+            const tr = document.createElement('tr');
+            const sideClass = o.side === 'BUY' ? 'badge-PASS' : 'badge-WARN';
+            const statusClass = o.status === 'FILLED' ? 'badge-PASS' : (o.status === 'CANCELED' ? 'badge-FAIL' : 'badge-WARN');
+            const quoteVal = Number(o.cummulativeQuoteQty || 0).toFixed(2);
+            const timeStr = o.time ? new Date(o.time).toLocaleTimeString() : '-';
+
+            tr.innerHTML = `
+              <td><span style="font-family:var(--font-mono); font-size:11px; font-weight:600; color:#fff;">${o.orderId}</span></td>
+              <td><span class="coin-pill active" style="font-size:10px; padding:2px 7px;">${escapeHtml(o.symbol)}</span></td>
+              <td><span class="badge-status ${sideClass}">${escapeHtml(o.side)}</span></td>
+              <td><span style="font-family:var(--font-mono); font-size:11px;">${escapeHtml(o.type)}</span></td>
+              <td><span style="font-family:var(--font-mono); font-size:11px; font-weight:600;">${o.executedQty}</span></td>
+              <td><span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-mint);">$${quoteVal}</span></td>
+              <td><span class="badge-status ${statusClass}">${escapeHtml(o.status)}</span></td>
+              <td><span style="font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted);">${timeStr}</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (err) {
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align:center; padding:20px; color:var(--veto);">
+                Failed to load Binance order history: ${escapeHtml(err.message)}
+              </td>
+            </tr>
+          `;
+        }
+      } finally {
+        if (btn) btn.textContent = '↻ Refresh Orders';
+      }
+    }
+
+    // Apple-Style Scroll Progress & Smooth Intersection Observer
+    function initScrollAnimations() {
+      const scrollBar = document.getElementById('scrollProgress');
+      
+      const updateScroll = () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0 && scrollBar) {
+          const pct = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
+          scrollBar.style.width = pct + '%';
+        }
+      };
+      
+      window.addEventListener('scroll', updateScroll, { passive: true });
+      updateScroll();
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+            }
+          });
+        }, {
+          threshold: 0.05,
+          rootMargin: '0px 0px -20px 0px'
+        });
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+      } else {
+        // Fallback for environments without IntersectionObserver
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => el.classList.add('is-visible'));
+      }
+    }
+
+    // Auto-load history on initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      loadOrderHistory();
+      initScrollAnimations();
+    });
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

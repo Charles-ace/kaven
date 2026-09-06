@@ -1,0 +1,42 @@
+{
+  "name": "kaven",
+  "version": "1.0.0",
+  "description": "Kaven — Pre-flight invariant gate and safety covenant agent for Binance Agent OS",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/api/server.js",
+    "mcp": "tsx src/mcp/server.ts",
+    "api": "tsx src/api/server.ts",
+    "test": "tsx tests/run_tests.ts && tsx tests/run_api_test.ts && tsx tests/run_mcp_test.ts",
+    "test:unit": "tsx tests/run_tests.ts",
+    "test:api": "tsx tests/run_api_test.ts",
+    "test:mcp": "tsx tests/run_mcp_test.ts",
+    "test:executor": "tsx tests/executor_real_testnet.ts",
+    "executor": "tsx src/executor/index.ts",
+    "executor:cli": "tsx src/executor/cli.ts",
+    "history": "tsx src/executor/history.ts",
+    "demo": "tsx src/demo.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.520",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "^4.0.520",
+    "sharp": "^0.35.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: kaven
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/api/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: BINANCE_TESTNET_API_KEY
+        sync: false
+      - key: BINANCE_TESTNET_SECRET_KEY
+        sync: false
